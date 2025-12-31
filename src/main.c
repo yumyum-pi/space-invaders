@@ -15,9 +15,11 @@ int main() {
   if (!slice_push(&s, 10)) {
     printf("error while pushing to slice: %d\n", 3);
   }
+  slice_free(&s);
 
   my_string st = cstr_to_my_string("skd\0jhfksjahfdj");
 
+  my_string_free(&st);
   printf("string: length: %lu\n", st.length);
   printf("array: length: %lu, capacity: %lu\n", s.length, s.capacity);
   return s.capacity;
