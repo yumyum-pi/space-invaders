@@ -1,5 +1,5 @@
 CC      = cc
-CFLAGS  = -Wall -Wextra -Werror -std=c11
+CFLAGS  = -Wall -fsanitize=address -Wextra -Werror -std=c11
 DEBUG   = -g -O0
 RELEASE = -O2 -DNDEBUG
 BUILD_DIR = ./build
