@@ -29,6 +29,7 @@ my_string cstr_to_my_string(char *src) {
 }
 
 void my_string_free(my_string *s) {
+  assert(s->data != NULL);
   free(s->data);
   s->data = NULL;
   s->length = 0;
