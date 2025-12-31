@@ -2,13 +2,15 @@ CC      = cc
 CFLAGS  = -Wall -Wextra -Werror -std=c11
 DEBUG   = -g -O0
 RELEASE = -O2 -DNDEBUG
-PROGRAM_NAME = "app"
+BUILD_DIR = ./build
+PROGRAM_NAME = app
+SRC = ./src/*.c
 
-debug: ./src/main.c
-	$(CC) $(CFLAGS) $(DEBUG) $< -o ./build/$(PROGRAM_NAME)
+debug: $(SRC)
+	$(CC) $(CFLAGS) $(DEBUG) $^ -o $(BUILD_DIR)/$(PROGRAM_NAME)
 
-release: ./src/main.c
-	$(CC) $(CFLAGS) $(RELEASE) $< -o ./build/$(PROGRAM_NAME)
+release: $(SRC)
+	$(CC) $(CFLAGS) $(RELEASE) $^ -o $(BUILD_DIR)/$(PROGRAM_NAME)
 
 run: debug
 	./build/$(PROGRAM_NAME)
