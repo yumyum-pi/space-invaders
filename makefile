@@ -4,7 +4,7 @@ DEBUG   = -g -O0
 RELEASE = -O2 -DNDEBUG
 BUILD_DIR = ./build
 PROGRAM_NAME = app
-SRC = ./src/*.c
+SRC = ./src/*.c ./src/**/*.c
 
 debug: $(SRC)
 	$(CC) $(CFLAGS) $(DEBUG) $^ -o $(BUILD_DIR)/$(PROGRAM_NAME)
