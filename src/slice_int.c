@@ -30,6 +30,7 @@ bool slice_push(IntSlice *s, int value) {
 }
 
 void slice_free(IntSlice *s) {
+  assert(s->data != NULL);
   free(s->data);
   s->data = NULL;
   s->length = 0;
