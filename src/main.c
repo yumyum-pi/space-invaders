@@ -1,26 +1,11 @@
-#include "./slice_int.h"
-#include "./utils/string.h"
 #include <assert.h>
 #include <stdbool.h>
-#include <stdio.h>
+// need to simulate a ball falling on the ground
 int main() {
+  // steps to folllow
+  // create a rendere
+  // create the ball
+  // update the ball's position
 
-  IntSlice s = slice_init(0, 2);
-  if (!slice_push(&s, 10)) {
-    printf("error while pushing to slice: %d\n", 1);
-  }
-  if (!slice_push(&s, 10)) {
-    printf("error while pushing to slice: %d\n", 2);
-  }
-  if (!slice_push(&s, 10)) {
-    printf("error while pushing to slice: %d\n", 3);
-  }
-  slice_free(&s);
-
-  my_string st = cstr_to_my_string("skd\0jhfksjahfdj");
-
-  my_string_free(&st);
-  printf("string: length: %lu\n", st.length);
-  printf("array: length: %lu, capacity: %lu\n", s.length, s.capacity);
-  return s.capacity;
+  return 0;
 }
