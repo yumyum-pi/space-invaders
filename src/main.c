@@ -170,7 +170,9 @@ Vec2 get_window_size() {
 }
 
 void render(renderer *r) {
-  write(STDOUT_FILENO, "\x1b[H\x1b[2J", 7); // clear screen
+  // write(STDOUT_FILENO, "\x1b[H\x1b[2J", 7); // clear screen
+  // Move cursor to home (1,1) without clearing the whole screen
+  write(STDOUT_FILENO, "\x1b[H", 3);
   write(STDOUT_FILENO, r->buffer, r->buffer_size);
 }
 
