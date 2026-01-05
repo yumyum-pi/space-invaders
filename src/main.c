@@ -168,7 +168,32 @@ Vec2 get_window_size() {
   assert(win_size_vec2.y != 0);
   return win_size_vec2;
 }
-void render_ui(renderer *r) {
+
+// return the length of c style string that are null terminated
+size_t c_str_len(const char *c) {
+  size_t len = 0;
+  while (c[len] != '\0') {
+    len++;
+  }
+  return len;
+}
+
+void render_char_at_offset(renderer *r, const char *c, size_t offset) {
+  size_t len = c_str_len(c);
+  assert(len != 0);
+  assert(offset < r->buffer_size);
+  assert(offset + len <= r->buffer_size);
+  for (size_t i = 0; i < len; i++) {
+    r->buffer[i + offset] = c[i];
+  }
+}
+
+size_t calc_offset_top_right(renderer *r, size_t l) { return r->width - l; }
+size_t calc_offset_bottom_right(renderer *r, size_t l) {
+  return (r->buffer_size - l);
+}
+
+void render_ui(renderer *r, Player *p) {
   char border_char = '+';
 
   // render borders
@@ -182,7 +207,25 @@ void render_ui(renderer *r) {
   }
 
   // enter title on top left
-  // enter window size on top right
+  render_char_at_offset(r, "| THIS IS TITLE |", 2);
+  {
+    char size[64];
+    size_t l =
+        snprintf(size, 64, "| width:%lu * height:%lu |", r->width, r->height);
+    assert(l != 0);
+
+    size_t offset = calc_offset_top_right(r, l) - 1;
+    render_char_at_offset(r, size, offset);
+  }
+  {
+    char position[64];
+    size_t l = snprintf(position, 64, "| X:%lu * Y:%lu |", p->position.x,
+                        p->position.y);
+    assert(l != 0);
+
+    size_t offset = calc_offset_bottom_right(r, l) - 1;
+    render_char_at_offset(r, position, offset);
+  }
 }
 
 void render(renderer *r) {
@@ -238,7 +281,7 @@ int main() {
 
     render_clear(&r, ' ');
     render_player(&r, &p);
-    render_ui(&r);
+    render_ui(&r, &p);
     render(&r);
 
     // TODO: Better "Frame Timing"
