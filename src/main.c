@@ -168,6 +168,22 @@ Vec2 get_window_size() {
   assert(win_size_vec2.y != 0);
   return win_size_vec2;
 }
+void render_ui(renderer *r) {
+  char border_char = '+';
+
+  // render borders
+  size_t w = 0;
+  size_t l_line = r->buffer_size - r->width;
+  for (size_t i = 0; i < r->buffer_size; i++) {
+    w = i % r->width;
+    if (w == 0 || w == (r->width - 1) || i < r->width || i > l_line) {
+      r->buffer[i] = border_char;
+    }
+  }
+
+  // enter title on top left
+  // enter window size on top right
+}
 
 void render(renderer *r) {
   // write(STDOUT_FILENO, "\x1b[H\x1b[2J", 7); // clear screen
@@ -195,7 +211,7 @@ void handle_input(char c, Player *p) {
   }
 };
 
-// need to simulate a ball falling on the ground
+// Render UI
 int main() {
   enableRawMode();
   char c = 'a';
@@ -207,7 +223,7 @@ int main() {
   Player p = {
       .position =
           {
-              .x = 0,
+              .x = 1,
               .y = 1,
           },
       .display_char = 'V',
@@ -222,6 +238,7 @@ int main() {
 
     render_clear(&r, ' ');
     render_player(&r, &p);
+    render_ui(&r);
     render(&r);
 
     // TODO: Better "Frame Timing"
