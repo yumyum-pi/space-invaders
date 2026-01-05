@@ -177,6 +177,8 @@ void render(renderer *r) {
 }
 
 void handle_input(char c, Player *p) {
+
+  // TODO: Boundary Checking (Prevent Segfaults) for player;
   switch (c) {
   case 'd':
     p->position.x += 1;
@@ -211,6 +213,7 @@ int main() {
       .display_char = 'V',
   };
   //
+  // TODO: Handling Window Resizing
   while (c != 'q') {
 
     while (read(STDIN_FILENO, &c, 1) == 1) {
@@ -221,6 +224,7 @@ int main() {
     render_player(&r, &p);
     render(&r);
 
+    // TODO: Better "Frame Timing"
     usleep(FRAME_RATE);
   }
   return 0;
