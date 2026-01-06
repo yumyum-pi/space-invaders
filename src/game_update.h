@@ -6,4 +6,7 @@
 
 void game_update(GameState *g, const Input *in, int dt);
 
+void frame_begin(GameState *gs);
+void frame_sleep(GameState *gs);
+
 #endif // !GAME_UPDATE

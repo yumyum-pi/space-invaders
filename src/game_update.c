@@ -41,3 +41,28 @@ void game_update(GameState *g, const Input *in, int dt) {
     p->velocity = zero_vec();
   }
 }
+static long timespec_diff_ms(const struct timespec *a,
+                             const struct timespec *b) {
+  return (a->tv_sec - b->tv_sec) * 1000L + (a->tv_nsec - b->tv_nsec) / 1000000L;
+}
+void frame_begin(GameState *gs) {
+  clock_gettime(CLOCK_MONOTONIC, &gs->frame_start);
+}
+void frame_sleep(GameState *g) {
+  struct timespec now;
+  clock_gettime(CLOCK_MONOTONIC, &now);
+
+  long elapsed = timespec_diff_ms(&now, &g->frame_start);
+  long remaining = g->target_frame_ms - elapsed;
+
+  if (remaining <= 0) {
+    return;
+  }
+
+  struct timespec sleep_time = {
+      .tv_sec = remaining / 1000,
+      .tv_nsec = (remaining % 1000) * 1000000L,
+  };
+
+  nanosleep(&sleep_time, NULL);
+}

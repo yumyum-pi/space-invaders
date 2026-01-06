@@ -11,13 +11,13 @@ int main() {
   // TODO: need to properly handle non blocking inputs
   input_init();
   while (gs.is_running) {
+    frame_begin(&gs);
     // get the inputs
     Input in = input_poll();
     game_update(&gs, &in, 2);
 
     render(&r, &gs);
-    // TODO: Better "Frame Timing"
-    usleep(41666);
+    frame_sleep(&gs);
   }
   return 0;
 }

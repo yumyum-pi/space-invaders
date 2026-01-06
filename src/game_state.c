@@ -24,6 +24,7 @@ GameState game_state_init(Vec2i terminal_size, const char *title) {
   return (GameState){.is_running = true,
                      .title = title,
                      .terminal_size = terminal_size,
+                     .target_frame_ms = FRAME_MS,
                      .bounds_min = bounds_min,
                      .bounds_max = bounds_max,
                      .player = p};
