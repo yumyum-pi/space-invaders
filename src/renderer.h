@@ -4,8 +4,7 @@
 #include "game_state.h"
 
 typedef struct {
-  int width;
-  int height;
+  Vec2i terminal_size;
   int stride;
   int buffer_size;
   char *buffer;

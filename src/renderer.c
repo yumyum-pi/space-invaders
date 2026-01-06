@@ -24,8 +24,7 @@ renderer renderer_init() {
   assert(buffer != NULL);
 
   renderer r = {
-      .width = terminal_size.x,
-      .height = terminal_size.y,
+      .terminal_size = terminal_size,
       .stride = stride,
       .buffer_size = buffer_size,
       .buffer = buffer,
@@ -33,8 +32,8 @@ renderer renderer_init() {
   return r;
 }
 void renderer_clear(renderer *r, char bg) {
-  for (int y = 0; y < r->height; y++) {
-    for (int x = 0; x < r->width; x++) {
+  for (int y = 0; y < r->terminal_size.y; y++) {
+    for (int x = 0; x < r->terminal_size.x; x++) {
       r->buffer[y * r->stride + x] = bg;
     }
   }
@@ -42,11 +41,11 @@ void renderer_clear(renderer *r, char bg) {
 }
 int position_to_index(renderer *r, Vec2i v) {
   assert(v.x >= 0);
-  assert(v.x < r->width);
+  assert(v.x < r->terminal_size.x);
   assert(v.y >= 0);
-  assert(v.y < r->height);
+  assert(v.y < r->terminal_size.y);
 
-  int index = v.y * (r->width);
+  int index = v.y * (r->terminal_size.x);
   index += v.x;
   assert(index < r->buffer_size);
 
@@ -78,7 +77,9 @@ void render_char_at_offset(renderer *r, const char *c, int offset) {
   }
 }
 
-int calc_offset_top_right(renderer *r, size_t l) { return r->width - l; }
+int calc_offset_top_right(renderer *r, size_t l) {
+  return r->terminal_size.x - l;
+}
 int calc_offset_bottom_right(renderer *r, size_t l) {
   return (r->buffer_size - l);
 }
@@ -88,10 +89,11 @@ void render_ui(renderer *r, GameState *gs) {
 
   // render borders
   int w = 0;
-  int l_line = r->buffer_size - r->width;
+  int l_line = r->buffer_size - r->terminal_size.x;
   for (int i = 0; i < r->buffer_size; i++) {
-    w = i % r->width;
-    if (w == 0 || w == (r->width - 1) || i < r->width || i > l_line) {
+    w = i % r->terminal_size.x;
+    if (w == 0 || w == (r->terminal_size.x - 1) || i < r->terminal_size.x ||
+        i > l_line) {
       r->buffer[i] = border_char;
     }
   }
@@ -101,7 +103,8 @@ void render_ui(renderer *r, GameState *gs) {
   {
     char size[64];
     int l = snprintf(size, 64, "| width:%lu * height:%lu |",
-                     (unsigned long)r->width, (unsigned long)r->height);
+                     (unsigned long)r->terminal_size.x,
+                     (unsigned long)r->terminal_size.y);
     assert(l != 0);
 
     int offset = calc_offset_top_right(r, l) - 1;
