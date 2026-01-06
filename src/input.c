@@ -1,4 +1,5 @@
 #include "./input.h"
+#include <fcntl.h>
 #include <unistd.h>
 
 Input input_poll() {
@@ -31,4 +32,9 @@ Input input_poll() {
   }
 
   return i;
+}
+
+void input_init(void) {
+  // int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
+  // fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
 }

@@ -10,5 +10,6 @@ typedef struct {
 } Input;
 
 Input input_poll(void);
+void input_init(void);
 
 #endif // !INPUT_H
