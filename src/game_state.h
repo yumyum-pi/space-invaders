@@ -1,16 +1,18 @@
 #ifndef GAME_STATE_H
 #define GAME_STATE_H
-#include <time.h>
 
+#include "enemy.h"
 #include "player.h"
 #include "utils/math.h"
 #include <stdbool.h>
+#include <time.h>
 
 #define FPS 24
 #define FRAME_MS (1000 / FPS)
 
 typedef struct {
   Player player;
+  Enemy enemy;
   Vec2i terminal_size;
   Vec2i bounds_min;
   Vec2i bounds_max;
