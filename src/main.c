@@ -8,9 +8,6 @@ int main() {
   renderer r = renderer_init();
   GameState gs = game_state_init(r.terminal_size, "This is title");
 
-  // TODO: create enemies
-  // - Add them in the world
-  // - make them move over time
   // TODO: need to properly handle non blocking inputs
   input_init();
 

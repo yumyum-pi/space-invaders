@@ -65,26 +65,42 @@ void frame_sleep(GameState *g) {
   nanosleep(&sleep_time, NULL);
 }
 
-int loop(int min, int max, int frame_count) {
-  assert(min < max);
+int ping_pong(int min, int max, float speed, int frame_count) {
+  int diff = max - min;
+  int cycle_length = diff * 2;
 
-  int diff = (max - min);
-  int diff2 = diff * 2;
-  int offset = frame_count % diff2;
+  float progress = (float)((int)(frame_count * speed) % cycle_length);
 
-  if (offset > diff) {
-    offset = diff2 - offset;
-  }
+  float t = progress / diff;
+  if (t > 1.0f)
+    t = 2.0f - t;
 
-  return min + offset;
+  return (int)(min + (t * diff));
+}
+// Ping-pong the progress so it goes 0 -> 1 -> 0
+int ping_pong_ease_in_out(int min, int max, float speed, int frame_count) {
+  int diff = max - min;
+  int cycle_length = diff * 2;
+
+  float progress = (float)((int)(frame_count * speed) % cycle_length);
+
+  float t = progress / diff;
+  if (t > 1.0f)
+    t = 2.0f - t;
+
+  // curve the linear "t" into a smooth S-shape
+  float eased_t = t * t * (3.0f - 2.0f * t);
+
+  return (int)(min + (eased_t * diff));
 }
 
 void move_enemy(Enemy *e, int frame_count, Vec2i terminal_size) {
-  int speed = 1;
-  int bound_offset = 64;
-  int t = loop(-bound_offset, bound_offset, frame_count * speed);
+  float speed_x = 2.0f;
+  int bound_offset_x = 64;
+  int x = ping_pong_ease_in_out(-bound_offset_x, bound_offset_x, speed_x,
+                                frame_count);
 
-  e->position.x = e->target_position.x + t;
+  e->position.x = e->target_position.x + x;
   if (!is_point_in_rect(e->position, zero_vec(), terminal_size)) {
     e->position = clamp_vec2i(e->position, zero_vec(), terminal_size);
     e->velocity = zero_vec();
