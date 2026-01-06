@@ -2,7 +2,6 @@
 #include "./renderer.h"
 #include "game_update.h"
 #include "input.h"
-#include "utils/math.h"
 #include <unistd.h>
 
 int main() {
@@ -14,7 +13,6 @@ int main() {
   // - make them move over time
   // TODO: need to properly handle non blocking inputs
   input_init();
-  gs.enemy.position = (Vec2i){r.terminal_size.x / 2, 4};
 
   while (gs.is_running) {
     frame_begin(&gs);
@@ -23,6 +21,8 @@ int main() {
     game_update(&gs, &in, 2);
 
     render(&r, &gs);
+
+    gs.frame_count += 1;
     frame_sleep(&gs);
   }
   return 0;

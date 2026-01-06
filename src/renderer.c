@@ -117,15 +117,26 @@ void render_ui(renderer *r, GameState *gs) {
   }
   {
 
-    Player *p = &gs->player;
-    char position[64];
-    int l = snprintf(position, 64, "| X:%lu * Y:%lu | dx:%d dy:%d |",
-                     (unsigned long)p->position.x, (unsigned long)p->position.y,
-                     p->velocity.x, p->velocity.y);
+    // Player *p = &gs->player;
+    // char position[64];
+    // int l = snprintf(position, 64, "| X:%lu * Y:%lu | dx:%d dy:%d |",
+    //                  (unsigned long)p->position.x, (unsigned
+    //                  long)p->position.y, p->velocity.x, p->velocity.y);
+    // assert(l != 0);
+    //
+    // int offset = calc_offset_bottom_right(r, l) - 1;
+    // render_char_at_offset(r, position, offset);
+  }
+  {
+
+    char frame_count_char[64];
+    Vec2i ememy_vec2 = gs->enemy.velocity;
+    int l = snprintf(frame_count_char, 64, "| enemy: x:%d - y:%d |",
+                     ememy_vec2.x, ememy_vec2.y);
     assert(l != 0);
 
     int offset = calc_offset_bottom_right(r, l) - 1;
-    render_char_at_offset(r, position, offset);
+    render_char_at_offset(r, frame_count_char, offset);
   }
 }
 

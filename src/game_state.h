@@ -12,6 +12,7 @@
 
 typedef struct {
   Player player;
+  int frame_count;
   Enemy enemy;
   Vec2i terminal_size;
   Vec2i bounds_min;

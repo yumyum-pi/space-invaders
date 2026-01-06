@@ -6,6 +6,7 @@
 
 typedef struct {
   Vec2i position;
+  Vec2i target_position;
   Vec2i velocity;
   int health;
   bool is_active;

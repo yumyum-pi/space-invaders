@@ -1,6 +1,8 @@
 #include "./game_update.h"
+#include "enemy.h"
 #include "input.h"
 #include "utils/math.h"
+#include <assert.h>
 
 void update_player_velocity(const Input *in, Vec2i *v, int dt) {
   if (in->is_input) {
@@ -31,6 +33,7 @@ void update_player_position(Vec2i *position, Vec2i *velocity, int dt,
   position->y += velocity->y / (dt / 2);
 
   // clamp
+  //
   if (!is_point_in_rect(*position, g->bounds_min, g->bounds_max)) {
     *position = clamp_vec2i(*position, g->bounds_min, g->bounds_max);
     *velocity = zero_vec();
@@ -62,8 +65,33 @@ void frame_sleep(GameState *g) {
   nanosleep(&sleep_time, NULL);
 }
 
-void game_update(GameState *g, const Input *in, int dt) {
+int loop(int min, int max, int frame_count) {
+  assert(min < max);
 
+  int diff = (max - min);
+  int diff2 = diff * 2;
+  int offset = frame_count % diff2;
+
+  if (offset > diff) {
+    offset = diff2 - offset;
+  }
+
+  return min + offset;
+}
+
+void move_enemy(Enemy *e, int frame_count, Vec2i terminal_size) {
+  int speed = 1;
+  int bound_offset = 64;
+  int t = loop(-bound_offset, bound_offset, frame_count * speed);
+
+  e->position.x = e->target_position.x + t;
+  if (!is_point_in_rect(e->position, zero_vec(), terminal_size)) {
+    e->position = clamp_vec2i(e->position, zero_vec(), terminal_size);
+    e->velocity = zero_vec();
+  }
+}
+
+void game_update(GameState *g, const Input *in, int dt) {
   if (in->quit) {
     g->is_running = 0;
     return;
@@ -74,4 +102,6 @@ void game_update(GameState *g, const Input *in, int dt) {
   Vec2i *pos = &p->position;
   update_player_velocity(in, v, dt);
   update_player_position(pos, v, dt, g);
+
+  move_enemy(&g->enemy, g->frame_count, g->terminal_size);
 }

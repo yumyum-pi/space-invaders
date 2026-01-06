@@ -15,7 +15,8 @@ GameState game_state_init(Vec2i terminal_size, const char *title) {
       .velocity = zero_vec(),
   };
 
-  Enemy e = new_enemy(zero_vec(), 10);
+  Enemy e = new_enemy((Vec2i){terminal_size.x / 2, 4}, 10);
+  ;
   Vec2i bounds_min = {
       .x = 16,
       .y = terminal_size.y - 32,
@@ -34,5 +35,6 @@ GameState game_state_init(Vec2i terminal_size, const char *title) {
       .bounds_max = bounds_max,
       .player = p,
       .enemy = e,
+      .frame_count = 0,
   };
 }
