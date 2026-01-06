@@ -1,16 +1,8 @@
 #include "./game_update.h"
+#include "input.h"
 #include "utils/math.h"
 
-void game_update(GameState *g, const Input *in, int dt) {
-
-  if (in->quit) {
-    g->is_running = 0;
-    return;
-  }
-
-  Player *p = &g->player;
-  Vec2i *v = &p->velocity;
-
+void update_player_velocity(const Input *in, Vec2i *v, int dt) {
   if (in->is_input) {
 
     if (in->ay > 0) {
@@ -28,17 +20,20 @@ void game_update(GameState *g, const Input *in, int dt) {
     // clamp the velocity
     v->x = clamp(v->x, -5 * dt, 5 * dt);
     v->y = clamp(v->y, -4, 4);
-  } else {
-    p->velocity = move_to_vec2i(p->velocity, zero_vec(), 1);
+    return;
   }
+  *v = move_to_vec2i(*v, zero_vec(), 1);
+}
+void update_player_position(Vec2i *position, Vec2i *velocity, int dt,
+                            GameState *g) {
 
-  p->position.x += p->velocity.x / (dt / 2);
-  p->position.y += p->velocity.y / (dt / 2);
+  position->x += velocity->x / (dt / 2);
+  position->y += velocity->y / (dt / 2);
 
   // clamp
-  if (!is_point_in_rect(p->position, g->bounds_min, g->bounds_max)) {
-    p->position = clamp_vec2i(p->position, g->bounds_min, g->bounds_max);
-    p->velocity = zero_vec();
+  if (!is_point_in_rect(*position, g->bounds_min, g->bounds_max)) {
+    *position = clamp_vec2i(*position, g->bounds_min, g->bounds_max);
+    *velocity = zero_vec();
   }
 }
 static long timespec_diff_ms(const struct timespec *a,
@@ -65,4 +60,18 @@ void frame_sleep(GameState *g) {
   };
 
   nanosleep(&sleep_time, NULL);
+}
+
+void game_update(GameState *g, const Input *in, int dt) {
+
+  if (in->quit) {
+    g->is_running = 0;
+    return;
+  }
+
+  Player *p = &g->player;
+  Vec2i *v = &p->velocity;
+  Vec2i *pos = &p->position;
+  update_player_velocity(in, v, dt);
+  update_player_position(pos, v, dt, g);
 }
