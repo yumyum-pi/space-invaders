@@ -8,9 +8,13 @@ Vec2i zero_vec(void) {
 };
 
 int move_to(int source, int target, int dx) {
-  if (source == target) {
+  // calcuate the distance
+  int distance = (source < target) ? (target - source) : (source - target);
+
+  if (distance <= dx) {
     return target;
   }
+
   if (source < target) {
     source += dx;
   } else {
