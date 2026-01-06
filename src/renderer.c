@@ -56,6 +56,11 @@ void render_player(renderer *r, Vec2i p) {
   int index = position_to_index(r, p);
   r->buffer[index] = 'A';
 }
+
+void render_enemy(renderer *r, Vec2i p) {
+  int index = position_to_index(r, p);
+  r->buffer[index] = 'V';
+}
 //
 
 // TODO: move to a different location
@@ -127,6 +132,7 @@ void render_ui(renderer *r, GameState *gs) {
 void render(renderer *r, GameState *gs) {
   renderer_clear(r, ' ');
   render_player(r, gs->player.position);
+  render_enemy(r, gs->enemy.position);
   render_ui(r, gs);
 
   t_print_frame(r->buffer, r->buffer_size);
