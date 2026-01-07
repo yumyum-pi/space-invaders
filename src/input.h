@@ -7,6 +7,7 @@ typedef struct {
   int ay;
   bool is_input;
   bool quit;
+  bool fire;
 } Input;
 
 Input input_poll(void);

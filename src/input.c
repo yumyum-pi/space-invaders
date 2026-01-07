@@ -28,6 +28,8 @@ Input input_poll() {
     case 'q':
       i.quit = true;
       break;
+    case ' ':
+      i.fire = true;
     }
   }
 
