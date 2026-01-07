@@ -95,7 +95,7 @@ int ping_pong_ease_in_out(int min, int max, float speed, int frame_count) {
   return (int)(min + (eased_t * diff));
 }
 
-void move_enemy(Enemy *e, int frame_count, Vec2i terminal_size) {
+void update_enemy(Enemy *e, int frame_count, Vec2i terminal_size) {
   float speed_x = 2.0f;
   int bound_offset_x = 64;
   int x = ping_pong_ease_in_out(-bound_offset_x, bound_offset_x, speed_x,
@@ -122,5 +122,5 @@ void game_update(GameState *g, const Input *in, int dt) {
     return;
   }
   update_player(g, in, dt);
-  move_enemy(&g->enemy, g->frame_count, g->terminal_size);
+  update_enemy(&g->enemy, g->frame_count, g->terminal_size);
 }
