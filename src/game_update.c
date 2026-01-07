@@ -1,5 +1,6 @@
 #include "./game_update.h"
 #include "enemy.h"
+#include "game_state.h"
 #include "input.h"
 #include "utils/math.h"
 #include <assert.h>
@@ -107,17 +108,19 @@ void move_enemy(Enemy *e, int frame_count, Vec2i terminal_size) {
   }
 }
 
-void game_update(GameState *g, const Input *in, int dt) {
-  if (in->quit) {
-    g->is_running = 0;
-    return;
-  }
-
+void update_player(GameState *g, const Input *in, int dt) {
   Player *p = &g->player;
   Vec2i *v = &p->velocity;
   Vec2i *pos = &p->position;
   update_player_velocity(in, v, dt);
   update_player_position(pos, v, dt, g);
+}
 
+void game_update(GameState *g, const Input *in, int dt) {
+  if (in->quit) {
+    g->is_running = 0;
+    return;
+  }
+  update_player(g, in, dt);
   move_enemy(&g->enemy, g->frame_count, g->terminal_size);
 }
