@@ -90,3 +90,10 @@ int get_sine_table_value_with_offset(int source, int offset) {
 int get_sine_value(int source) {
   return get_sine_table_value_with_offset(source, 0);
 }
+
+bool is_eq_vec2i(Vec2i a, Vec2i b) {
+  if (a.x == b.x && a.y == b.y) {
+    return true;
+  }
+  return false;
+}

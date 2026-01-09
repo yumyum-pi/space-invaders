@@ -14,6 +14,7 @@ Vec2i clamp_vec2i(Vec2i source, Vec2i min, Vec2i max);
 int move_to(int source, int target, int dx);
 int move_to_source(int source, int target, int dx);
 Vec2i move_to_vec2i(Vec2i source, Vec2i target, int dx);
+bool is_eq_vec2i(Vec2i a, Vec2i b);
 
 bool is_point_in_rect(Vec2i p, Vec2i rect_min, Vec2i rect_max);
 
