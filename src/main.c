@@ -16,9 +16,7 @@ int main() {
     // get the inputs
     Input in = input_poll();
     game_update(&gs, &in, 2);
-
     render(&r, &gs);
-
     gs.frame_count += 1;
     frame_sleep(&gs);
   }

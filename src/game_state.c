@@ -1,4 +1,5 @@
 #include "game_state.h"
+#include "bullet.h"
 #include "enemy.h"
 #include "player.h"
 #include "utils/math.h"
@@ -15,8 +16,14 @@ GameState game_state_init(Vec2i terminal_size, const char *title) {
       .velocity = zero_vec(),
   };
 
+  bullet b = {
+      .position = zero_vec(),
+      .fired_by = 0,
+      .speed = 1,
+      .is_active = true,
+  };
+
   Enemy e = new_enemy((Vec2i){terminal_size.x / 2, 4}, 10);
-  ;
   Vec2i bounds_min = {
       .x = 16,
       .y = terminal_size.y - 32,
@@ -36,5 +43,6 @@ GameState game_state_init(Vec2i terminal_size, const char *title) {
       .player = p,
       .enemy = e,
       .frame_count = 0,
+      .bullet = b,
   };
 }

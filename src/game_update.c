@@ -1,4 +1,5 @@
 #include "./game_update.h"
+#include "bullet.h"
 #include "enemy.h"
 #include "game_state.h"
 #include "input.h"
@@ -107,13 +108,32 @@ void update_enemy(Enemy *e, int frame_count, Vec2i terminal_size) {
     e->velocity = zero_vec();
   }
 }
+void update_bullet(GameState *g) {
+  Vec2i *position = &(g->bullet.position);
+  position->y -= g->bullet.speed;
+
+  // bounds
+  if (!is_point_in_rect(*position, zero_vec(), g->terminal_size)) {
+    *position = zero_vec();
+    g->bullet.is_active = false;
+  }
+};
+
+void fire_bullet(GameState *g, Vec2i pos) {
+  g->bullet.is_active = true;
+  g->bullet.position = pos;
+};
 
 void update_player(GameState *g, const Input *in, int dt) {
+  bool fire = in->fire;
   Player *p = &g->player;
   Vec2i *v = &p->velocity;
   Vec2i *pos = &p->position;
   update_player_velocity(in, v, dt);
   update_player_position(pos, v, dt, g);
+  if (fire) {
+    fire_bullet(g, *pos);
+  }
 }
 
 void game_update(GameState *g, const Input *in, int dt) {
@@ -123,4 +143,7 @@ void game_update(GameState *g, const Input *in, int dt) {
   }
   update_player(g, in, dt);
   update_enemy(&g->enemy, g->frame_count, g->terminal_size);
+  if (g->bullet.is_active) {
+    update_bullet(g);
+  }
 }

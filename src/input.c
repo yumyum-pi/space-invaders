@@ -1,5 +1,6 @@
 #include "./input.h"
 #include <fcntl.h>
+#include <stdbool.h>
 #include <unistd.h>
 
 Input input_poll() {
@@ -9,6 +10,7 @@ Input input_poll() {
       .quit = false,
       .ax = 0,
       .ay = 0,
+      .fire = false,
   };
   while (read(STDIN_FILENO, &c, 1) == 1) {
     i.is_input = true;

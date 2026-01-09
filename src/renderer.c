@@ -2,7 +2,9 @@
 #include "./terminal.h"
 #include "./utils/math.h"
 #include "assert.h"
+#include "bullet.h"
 #include "game_state.h"
+#include "player.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -129,15 +131,26 @@ void render_ui(renderer *r, GameState *gs) {
   }
   {
 
-    char frame_count_char[64];
-    Vec2i ememy_vec2 = gs->enemy.velocity;
-    int l = snprintf(frame_count_char, 64, "| enemy: x:%d - y:%d |",
-                     ememy_vec2.x, ememy_vec2.y);
-    assert(l != 0);
-
-    int offset = calc_offset_bottom_right(r, l) - 1;
-    render_char_at_offset(r, frame_count_char, offset);
+    //     bullet *b = &(gs->bullet);
+    // #define LEFT_CORNER_BUFFER_SIZE 128
+    //     char frame_count_char[LEFT_CORNER_BUFFER_SIZE];
+    //     Vec2i *player_position = &(gs->player.position);
+    //     int l =
+    //         snprintf(frame_count_char, LEFT_CORNER_BUFFER_SIZE,
+    //                  "| player: x:%d - y:%d | bullet: x:%d - y:%d
+    //                  is_active:%d |", player_position->x, player_position->y,
+    //                  b->position.x, b->position.y, b->is_active);
+    //     assert(l != 0);
+    //
+    //     int offset = calc_offset_bottom_right(r, l) - 1;
+    //     render_char_at_offset(r, frame_count_char, offset);
   }
+}
+
+void render_bullet(renderer *r, bullet *b) {
+  // get position
+  int index = position_to_index(r, b->position);
+  r->buffer[index] = '|';
 }
 
 void render(renderer *r, GameState *gs) {
@@ -145,6 +158,9 @@ void render(renderer *r, GameState *gs) {
   render_player(r, gs->player.position);
   render_enemy(r, gs->enemy.position);
   render_ui(r, gs);
+  if (gs->bullet.is_active) {
+    render_bullet(r, &gs->bullet);
+  }
 
   t_print_frame(r->buffer, r->buffer_size);
 }

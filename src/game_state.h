@@ -1,6 +1,7 @@
 #ifndef GAME_STATE_H
 #define GAME_STATE_H
 
+#include "bullet.h"
 #include "enemy.h"
 #include "player.h"
 #include "utils/math.h"
@@ -14,6 +15,7 @@ typedef struct {
   Player player;
   int frame_count;
   Enemy enemy;
+  bullet bullet;
   Vec2i terminal_size;
   Vec2i bounds_min;
   Vec2i bounds_max;
