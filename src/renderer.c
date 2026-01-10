@@ -156,7 +156,9 @@ void render_bullet(renderer *r, bullet *b) {
 void render(renderer *r, GameState *gs) {
   renderer_clear(r, ' ');
   render_player(r, gs->player.position);
-  render_enemy(r, gs->enemy.position);
+  if (gs->enemy.is_active) {
+    render_enemy(r, gs->enemy.position);
+  }
   render_ui(r, gs);
   if (gs->bullet.is_active) {
     render_bullet(r, &gs->bullet);
@@ -164,8 +166,3 @@ void render(renderer *r, GameState *gs) {
 
   t_print_frame(r->buffer, r->buffer_size);
 }
-
-// void update_player_x_position(int x) {}
-//
-
-// Render UI
