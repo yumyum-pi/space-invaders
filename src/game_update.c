@@ -97,15 +97,16 @@ int ping_pong_ease_in_out(int min, int max, float speed, int frame_count) {
 }
 
 void update_enemy(Enemy *e, int frame_count, Vec2i terminal_size) {
-  float speed_x = 2.0f;
-  int bound_offset_x = 64;
-  int x = ping_pong_ease_in_out(-bound_offset_x, bound_offset_x, speed_x,
-                                frame_count);
-
-  e->position.x = e->target_position.x + x;
+  {
+    float speed = e->speed;
+    // TODO: the bound_offset_x should not be hard coded
+    int offset = 64; // left and right extrems of ping pong positions
+    int x = ping_pong_ease_in_out(-offset, offset, speed, frame_count);
+    e->position.x = e->target_position.x + x;
+  }
+  // TODO: the bonding box should be defined by the gamestate
   if (!is_point_in_rect(e->position, zero_vec(), terminal_size)) {
     e->position = clamp_vec2i(e->position, zero_vec(), terminal_size);
-    e->velocity = zero_vec();
   }
 }
 void update_bullet(GameState *g) {
@@ -123,6 +124,20 @@ void fire_bullet(GameState *g, Vec2i pos) {
   g->bullet.is_active = true;
   g->bullet.position = pos;
 };
+
+void player_bullet(bullet *pb, Enemy *e) {
+  // check if they are in the same coordinates
+  if (is_eq_vec2i(pb->position, e->position)) {
+    e->is_active = false;
+  }
+};
+
+void update_collision(GameState *g) {
+  // check if the bullet has the same position as enemey
+  bullet *pb = &(g->bullet);
+  Enemy *e = &(g->enemy);
+  player_bullet(pb, e);
+}
 
 void update_player(GameState *g, const Input *in, int dt) {
   bool fire = in->fire;
@@ -142,8 +157,18 @@ void game_update(GameState *g, const Input *in, int dt) {
     return;
   }
   update_player(g, in, dt);
-  update_enemy(&g->enemy, g->frame_count, g->terminal_size);
+  // only update the enemey when the enemy is is_active
+  {
+    Enemy *e = &g->enemy;
+    if (e->is_active) {
+      update_enemy(e, g->frame_count, g->terminal_size);
+    }
+  }
+
   if (g->bullet.is_active) {
     update_bullet(g);
   }
+
+  // check for collision
+  update_collision(g);
 }
