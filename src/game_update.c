@@ -3,6 +3,7 @@
 #include "enemy.h"
 #include "game_state.h"
 #include "input.h"
+#include "player.h"
 #include "utils/math.h"
 #include <assert.h>
 
@@ -146,7 +147,9 @@ void update_player(GameState *g, const Input *in, int dt) {
   Vec2i *pos = &p->position;
   update_player_velocity(in, v, dt);
   update_player_position(pos, v, dt, g);
-  if (fire) {
+  Gun *gun = &(p->gun);
+  if (fire && gun_should_fire(gun, g->frame_count)) {
+    gun->last_fired_frame = g->frame_count;
     fire_bullet(g, *pos);
   }
 }

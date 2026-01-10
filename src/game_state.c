@@ -14,6 +14,7 @@ GameState game_state_init(Vec2i terminal_size, const char *title) {
   Player p = {
       .position = create_player_start_pos(terminal_size),
       .velocity = zero_vec(),
+      .gun = new_gun_default(),
   };
 
   bullet b = {
@@ -42,7 +43,7 @@ GameState game_state_init(Vec2i terminal_size, const char *title) {
       .bounds_max = bounds_max,
       .player = p,
       .enemy = e,
-      .frame_count = 0,
+      .frame_count = 1,
       .bullet = b,
   };
 }
