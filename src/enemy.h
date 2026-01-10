@@ -10,6 +10,7 @@ typedef struct {
   Vec2i velocity;
   int health;
   bool is_active;
+  float speed;
 } Enemy;
 
 Enemy new_enemy(Vec2i position, int health);
