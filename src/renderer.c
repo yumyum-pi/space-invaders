@@ -4,9 +4,14 @@
 #include "assert.h"
 #include "bullet.h"
 #include "game_state.h"
+#include "input.h"
 #include "player.h"
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#define BUFFER_SIZE 128
+char buffer[BUFFER_SIZE];
 
 // TODO: not sure if i need to call endable raw mode from there
 renderer renderer_init() {
@@ -33,6 +38,7 @@ renderer renderer_init() {
   };
   return r;
 }
+
 void renderer_clear(renderer *r, char bg) {
   for (int y = 0; y < r->terminal_size.y; y++) {
     for (int x = 0; x < r->terminal_size.x; x++) {
@@ -91,6 +97,84 @@ int calc_offset_bottom_right(renderer *r, size_t l) {
   return (r->buffer_size - l);
 }
 
+void render_ui_elm(renderer *r, Vec2i ancher, Vec2i offset, const char *buffer,
+                   int buffer_size) {
+
+  Vec2i o = zero_vec();
+  switch (ancher.y) {
+  case 0:
+    // make the char middle algin
+    o.y = r->terminal_size.y / 2 + offset.y;
+    break;
+  case 1:
+    // make the char top align
+    o.y = 0 + offset.y;
+    break;
+  case -1:
+    // make the char bottom align
+    o.y = r->terminal_size.y - offset.y - 1;
+    break;
+  default:
+    assert(false && "unknown input for ancher y");
+    break;
+  }
+  assert(o.y >= 0);
+  assert(o.y <= r->terminal_size.y);
+
+  switch (ancher.x) {
+  case 0:
+    // make the char center algin
+    o.x = (r->terminal_size.x - buffer_size) / 2 + offset.x;
+    break;
+  case 1:
+    // make the char right align
+    o.x = r->terminal_size.x - buffer_size - offset.x;
+    break;
+  case -1:
+    // make the char top align
+    o.x = 0 + offset.x;
+    break;
+  default:
+    assert(false && "unknown input for ancher x");
+    break;
+  }
+  assert(o.x >= 0);
+  assert(o.x <= r->terminal_size.x);
+
+  int index = o.y * r->terminal_size.x + o.x;
+  assert(index >= 0);
+  assert(index < r->buffer_size);
+  render_char_at_offset(r, buffer, index);
+}
+
+void render_input(renderer *r, Input i) {
+  int l = snprintf(buffer, BUFFER_SIZE,
+                   "| input  x:%d  y:%d  fire:%d is_input:%d  |", i.ax, i.ay,
+                   i.fire, i.is_input);
+  assert(l != 0);
+  render_ui_elm(r, (Vec2i){.x = 1, .y = -1}, (Vec2i){.x = 1, .y = 1}, buffer,
+                l);
+};
+
+void render_player_pos(renderer *r, Player *p) {
+  int l = snprintf(buffer, 64, "| X:%lu * Y:%lu | dx:%d dy:%d |",
+                   (unsigned long)p->position.x, (unsigned long)p->position.y,
+                   p->velocity.x, p->velocity.y);
+  assert(l != 0);
+
+  render_ui_elm(r, (Vec2i){.x = -1, .y = -1}, (Vec2i){.x = 1, .y = 1}, buffer,
+                l);
+}
+void render_window_size(renderer *r) {
+  int l = snprintf(buffer, BUFFER_SIZE, "| width:%lu * height:%lu |",
+                   (unsigned long)r->terminal_size.x,
+                   (unsigned long)r->terminal_size.y);
+  assert(l != 0);
+  assert(l != 0);
+
+  render_ui_elm(r, (Vec2i){.x = 1, .y = 1}, (Vec2i){.x = 0, .y = 0}, buffer, l);
+}
+
 void render_ui(renderer *r, GameState *gs) {
   char border_char = '+';
 
@@ -107,44 +191,13 @@ void render_ui(renderer *r, GameState *gs) {
 
   // enter title on top left
   render_char_at_offset(r, gs->title, 2);
-  {
-    char size[64];
-    int l = snprintf(size, 64, "| width:%lu * height:%lu |",
-                     (unsigned long)r->terminal_size.x,
-                     (unsigned long)r->terminal_size.y);
-    assert(l != 0);
+  render_window_size(r);
 
-    int offset = calc_offset_top_right(r, l) - 1;
-    render_char_at_offset(r, size, offset);
-  }
-  {
+  // show player position
+  render_player_pos(r, &(gs->player));
 
-    // Player *p = &gs->player;
-    // char position[64];
-    // int l = snprintf(position, 64, "| X:%lu * Y:%lu | dx:%d dy:%d |",
-    //                  (unsigned long)p->position.x, (unsigned
-    //                  long)p->position.y, p->velocity.x, p->velocity.y);
-    // assert(l != 0);
-    //
-    // int offset = calc_offset_bottom_right(r, l) - 1;
-    // render_char_at_offset(r, position, offset);
-  }
-  {
-
-    //     bullet *b = &(gs->bullet);
-    // #define LEFT_CORNER_BUFFER_SIZE 128
-    //     char frame_count_char[LEFT_CORNER_BUFFER_SIZE];
-    //     Vec2i *player_position = &(gs->player.position);
-    //     int l =
-    //         snprintf(frame_count_char, LEFT_CORNER_BUFFER_SIZE,
-    //                  "| player: x:%d - y:%d | bullet: x:%d - y:%d
-    //                  is_active:%d |", player_position->x, player_position->y,
-    //                  b->position.x, b->position.y, b->is_active);
-    //     assert(l != 0);
-    //
-    //     int offset = calc_offset_bottom_right(r, l) - 1;
-    //     render_char_at_offset(r, frame_count_char, offset);
-  }
+  // show inputs on screen
+  render_input(r, gs->input);
 }
 
 void render_bullet(renderer *r, bullet *b) {
