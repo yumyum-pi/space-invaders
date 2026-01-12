@@ -7,36 +7,44 @@
 #include "utils/math.h"
 #include <assert.h>
 
-void update_player_velocity(const Input *in, Vec2i *v, int dt) {
-  if (in->is_input) {
-
-    if (in->ay > 0) {
-      v->y -= 1 * dt;
+void update_player_velocity(const Input *in, Vec2i *v) {
+  {
+    const Vec2i accleration = {
+        .x = 1,
+        .y = 1,
+    };
+    if (in->ay == 0) {
+      v->y = move_to(v->y, 0, 1);
+    } else if (in->ay > 0) {
+      v->y -= accleration.y;
     } else if (in->ay < 0) {
-      v->y += 1 * dt;
+      v->y += accleration.y;
     }
-
-    if (in->ax < 0) {
-      v->x -= 1 * dt;
+    if (in->ax == 0) {
+      v->x = move_to(v->x, 0, 1);
+    } else if (in->ax < 0) {
+      v->x -= accleration.x;
     } else if (in->ax > 0) {
-      v->x += 1 * dt;
+      v->x += accleration.x;
     }
-
-    // clamp the velocity
-    v->x = clamp(v->x, -5 * dt, 5 * dt);
-    v->y = clamp(v->y, -4, 4);
-    return;
   }
-  *v = move_to_vec2i(*v, zero_vec(), 1);
+
+  {
+    const Vec2i max_velocity = {
+        .x = 2,
+        .y = 2,
+    };
+    // clamp the velocity
+    v->x = clamp(v->x, -max_velocity.x, max_velocity.x);
+    v->y = clamp(v->y, -max_velocity.y, max_velocity.y);
+  }
+  return;
 }
-void update_player_position(Vec2i *position, Vec2i *velocity, int dt,
-                            GameState *g) {
 
-  position->x += velocity->x / (dt / 2);
-  position->y += velocity->y / (dt / 2);
-
+void update_player_position(Vec2i *position, Vec2i *velocity, GameState *g) {
+  position->x += velocity->x;
+  position->y += velocity->y;
   // clamp
-  //
   if (!is_point_in_rect(*position, g->bounds_min, g->bounds_max)) {
     *position = clamp_vec2i(*position, g->bounds_min, g->bounds_max);
     *velocity = zero_vec();
@@ -140,13 +148,13 @@ void update_collision(GameState *g) {
   player_bullet(pb, e);
 }
 
-void update_player(GameState *g, const Input *in, int dt) {
+void update_player(GameState *g, const Input *in) {
   bool fire = in->fire;
   Player *p = &g->player;
   Vec2i *v = &p->velocity;
   Vec2i *pos = &p->position;
-  update_player_velocity(in, v, dt);
-  update_player_position(pos, v, dt, g);
+  update_player_velocity(in, v);
+  update_player_position(pos, v, g);
   Gun *gun = &(p->gun);
   if (fire && gun_should_fire(gun, g->frame_count)) {
     gun->last_fired_frame = g->frame_count;
@@ -154,12 +162,13 @@ void update_player(GameState *g, const Input *in, int dt) {
   }
 }
 
-void game_update(GameState *g, const Input *in, int dt) {
+void game_update(GameState *g) {
+  const Input *in = &(g->input);
   if (in->quit) {
     g->is_running = 0;
     return;
   }
-  update_player(g, in, dt);
+  update_player(g, in);
   // only update the enemey when the enemy is is_active
   {
     Enemy *e = &g->enemy;

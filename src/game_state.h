@@ -3,6 +3,7 @@
 
 #include "bullet.h"
 #include "enemy.h"
+#include "input.h"
 #include "player.h"
 #include "utils/math.h"
 #include <stdbool.h>
@@ -12,6 +13,7 @@
 #define FRAME_MS (1000 / FPS)
 
 typedef struct {
+  Input input;
   Player player;
   int frame_count;
   Enemy enemy;
