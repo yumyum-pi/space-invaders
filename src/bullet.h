@@ -1,8 +1,8 @@
 #ifndef BULLET_H
 #define BULLET_H
 
-#include "utils/math.h"
 #include <stdbool.h>
+#include "utils/math.h"
 
 typedef struct {
   Vec2i position;
@@ -11,4 +11,4 @@ typedef struct {
   bool is_active;
 } bullet;
 
-#endif // !BULLET_H
+#endif  // !BULLET_H

@@ -7,10 +7,10 @@ typedef struct {
   Vec2i terminal_size;
   int stride;
   int buffer_size;
-  char *buffer;
+  char* buffer;
 } renderer;
 
 renderer renderer_init();
-void render(renderer *r, GameState *ge);
+void render(renderer* r, GameState* ge);
 // void renderer_shutdown(renderer *r);
-#endif // !renderer_H
+#endif  // !renderer_H

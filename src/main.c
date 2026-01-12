@@ -1,8 +1,8 @@
+#include <unistd.h>
 #include "./game_state.h"
 #include "./renderer.h"
 #include "game_update.h"
 #include "input.h"
-#include <unistd.h>
 
 int main() {
   renderer r = renderer_init();

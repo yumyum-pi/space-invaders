@@ -1,6 +1,6 @@
 #include "./player.h"
-#include "utils/math.h"
 #include <assert.h>
+#include "utils/math.h"
 
 Player new_player() {
   return (Player){
@@ -20,9 +20,11 @@ Gun new_gun(int fire_rate, int reload_rate) {
 };
 
 // TODO: remove the following number with FPS
-Gun new_gun_default(void) { return new_gun(1 * 24, 5); }
+Gun new_gun_default(void) {
+  return new_gun(1 * 24, 5);
+}
 
-bool gun_should_fire(Gun *g, int frame_count) {
+bool gun_should_fire(Gun* g, int frame_count) {
   // CASE: interger overflow in frame_count
   assert(frame_count > g->last_fired_frame);
   return g->fire_rate < (frame_count - g->last_fired_frame);

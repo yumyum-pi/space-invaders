@@ -1,8 +1,8 @@
 #ifndef TERMINAL_H
 #define TERMINAL_H
 
-#include "utils/math.h"
 #include <termios.h>
+#include "utils/math.h"
 
 /**
  * Terminal System Components
@@ -24,6 +24,6 @@ void t_enableRawMode(void);
 void t_disableRawMode(void);
 
 // Output
-void t_print_frame(char *buffer, int buffer_size);
+void t_print_frame(char* buffer, int buffer_size);
 
-#endif // TEMRNAL_H
+#endif  // TEMRNAL_H

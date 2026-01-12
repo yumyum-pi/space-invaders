@@ -1,13 +1,13 @@
 #include "./game_update.h"
+#include <assert.h>
 #include "bullet.h"
 #include "enemy.h"
 #include "game_state.h"
 #include "input.h"
 #include "player.h"
 #include "utils/math.h"
-#include <assert.h>
 
-void update_player_velocity(const Input *in, Vec2i *v) {
+void update_player_velocity(const Input* in, Vec2i* v) {
   {
     const Vec2i accleration = {
         .x = 1,
@@ -41,7 +41,7 @@ void update_player_velocity(const Input *in, Vec2i *v) {
   return;
 }
 
-void update_player_position(Vec2i *position, Vec2i *velocity, GameState *g) {
+void update_player_position(Vec2i* position, Vec2i* velocity, GameState* g) {
   position->x += velocity->x;
   position->y += velocity->y;
   // clamp
@@ -50,14 +50,14 @@ void update_player_position(Vec2i *position, Vec2i *velocity, GameState *g) {
     *velocity = zero_vec();
   }
 }
-static long timespec_diff_ms(const struct timespec *a,
-                             const struct timespec *b) {
+static long timespec_diff_ms(const struct timespec* a,
+                             const struct timespec* b) {
   return (a->tv_sec - b->tv_sec) * 1000L + (a->tv_nsec - b->tv_nsec) / 1000000L;
 }
-void frame_begin(GameState *gs) {
+void frame_begin(GameState* gs) {
   clock_gettime(CLOCK_MONOTONIC, &gs->frame_start);
 }
-void frame_sleep(GameState *g) {
+void frame_sleep(GameState* g) {
   struct timespec now;
   clock_gettime(CLOCK_MONOTONIC, &now);
 
@@ -105,11 +105,11 @@ int ping_pong_ease_in_out(int min, int max, float speed, int frame_count) {
   return (int)(min + (eased_t * diff));
 }
 
-void update_enemy(Enemy *e, int frame_count, Vec2i terminal_size) {
+void update_enemy(Enemy* e, int frame_count, Vec2i terminal_size) {
   {
     float speed = e->speed;
     // TODO: the bound_offset_x should not be hard coded
-    int offset = 64; // left and right extrems of ping pong positions
+    int offset = 64;  // left and right extrems of ping pong positions
     int x = ping_pong_ease_in_out(-offset, offset, speed, frame_count);
     e->position.x = e->target_position.x + x;
   }
@@ -118,8 +118,8 @@ void update_enemy(Enemy *e, int frame_count, Vec2i terminal_size) {
     e->position = clamp_vec2i(e->position, zero_vec(), terminal_size);
   }
 }
-void update_bullet(GameState *g) {
-  Vec2i *position = &(g->bullet.position);
+void update_bullet(GameState* g) {
+  Vec2i* position = &(g->bullet.position);
   position->y -= g->bullet.speed;
 
   // bounds
@@ -129,41 +129,41 @@ void update_bullet(GameState *g) {
   }
 };
 
-void fire_bullet(GameState *g, Vec2i pos) {
+void fire_bullet(GameState* g, Vec2i pos) {
   g->bullet.is_active = true;
   g->bullet.position = pos;
 };
 
-void player_bullet(bullet *pb, Enemy *e) {
+void player_bullet(bullet* pb, Enemy* e) {
   // check if they are in the same coordinates
   if (is_eq_vec2i(pb->position, e->position)) {
     e->is_active = false;
   }
 };
 
-void update_collision(GameState *g) {
+void update_collision(GameState* g) {
   // check if the bullet has the same position as enemey
-  bullet *pb = &(g->bullet);
-  Enemy *e = &(g->enemy);
+  bullet* pb = &(g->bullet);
+  Enemy* e = &(g->enemy);
   player_bullet(pb, e);
 }
 
-void update_player(GameState *g, const Input *in) {
+void update_player(GameState* g, const Input* in) {
   bool fire = in->fire;
-  Player *p = &g->player;
-  Vec2i *v = &p->velocity;
-  Vec2i *pos = &p->position;
+  Player* p = &g->player;
+  Vec2i* v = &p->velocity;
+  Vec2i* pos = &p->position;
   update_player_velocity(in, v);
   update_player_position(pos, v, g);
-  Gun *gun = &(p->gun);
+  Gun* gun = &(p->gun);
   if (fire && gun_should_fire(gun, g->frame_count)) {
     gun->last_fired_frame = g->frame_count;
     fire_bullet(g, *pos);
   }
 }
 
-void game_update(GameState *g) {
-  const Input *in = &(g->input);
+void game_update(GameState* g) {
+  const Input* in = &(g->input);
   if (in->quit) {
     g->is_running = 0;
     return;
@@ -171,7 +171,7 @@ void game_update(GameState *g) {
   update_player(g, in);
   // only update the enemey when the enemy is is_active
   {
-    Enemy *e = &g->enemy;
+    Enemy* e = &g->enemy;
     if (e->is_active) {
       update_enemy(e, g->frame_count, g->terminal_size);
     }

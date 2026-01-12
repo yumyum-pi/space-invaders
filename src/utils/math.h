@@ -20,4 +20,4 @@ bool is_point_in_rect(Vec2i p, Vec2i rect_min, Vec2i rect_max);
 
 int get_sine_table_value_with_offset(int source, int offset);
 int get_sine_value(int source);
-#endif // !MATH_H
+#endif  // !MATH_H

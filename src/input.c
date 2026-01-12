@@ -15,23 +15,12 @@ Input input_poll() {
   while (read(STDIN_FILENO, &c, 1) == 1) {
     i.is_input = true;
     switch (c) {
-    case 'd':
-      i.ax += 1;
-      break;
-    case 'a':
-      i.ax -= 1;
-      break;
-    case 'w':
-      i.ay += 1;
-      break;
-    case 's':
-      i.ay -= 1;
-      break;
-    case 'q':
-      i.quit = true;
-      break;
-    case ' ':
-      i.fire = true;
+      case 'd': i.ax += 1; break;
+      case 'a': i.ax -= 1; break;
+      case 'w': i.ay += 1; break;
+      case 's': i.ay -= 1; break;
+      case 'q': i.quit = true; break;
+      case ' ': i.fire = true;
     }
   }
 

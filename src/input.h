@@ -13,4 +13,4 @@ typedef struct {
 Input input_poll(void);
 void input_init(void);
 
-#endif // !INPUT_H
+#endif  // !INPUT_H

@@ -6,11 +6,11 @@
 
 Vec2i create_player_start_pos(Vec2i terminal_size) {
   return (Vec2i){
-      .x = terminal_size.x / 2, // middle of the screen
+      .x = terminal_size.x / 2,  // middle of the screen
       .y = terminal_size.y - 8,
   };
 }
-GameState game_state_init(Vec2i terminal_size, const char *title) {
+GameState game_state_init(Vec2i terminal_size, const char* title) {
   Player p = {
       .position = create_player_start_pos(terminal_size),
       .velocity = zero_vec(),

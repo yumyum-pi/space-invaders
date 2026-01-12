@@ -1,4 +1,7 @@
 #include "./renderer.h"
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "./terminal.h"
 #include "./utils/math.h"
 #include "assert.h"
@@ -6,9 +9,6 @@
 #include "game_state.h"
 #include "input.h"
 #include "player.h"
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 #define BUFFER_SIZE 128
 char buffer[BUFFER_SIZE];
@@ -27,7 +27,7 @@ renderer renderer_init() {
   int buffer_size = stride * terminal_size.y;
   assert(buffer_size != 0);
 
-  char *buffer = (char *)malloc(sizeof(char) * (1 + buffer_size));
+  char* buffer = (char*)malloc(sizeof(char) * (1 + buffer_size));
   assert(buffer != NULL);
 
   renderer r = {
@@ -39,7 +39,7 @@ renderer renderer_init() {
   return r;
 }
 
-void renderer_clear(renderer *r, char bg) {
+void renderer_clear(renderer* r, char bg) {
   for (int y = 0; y < r->terminal_size.y; y++) {
     for (int x = 0; x < r->terminal_size.x; x++) {
       r->buffer[y * r->stride + x] = bg;
@@ -47,7 +47,7 @@ void renderer_clear(renderer *r, char bg) {
   }
   r->buffer[r->buffer_size] = '\0';
 }
-int position_to_index(renderer *r, Vec2i v) {
+int position_to_index(renderer* r, Vec2i v) {
   assert(v.x >= 0);
   assert(v.x < r->terminal_size.x);
   assert(v.y >= 0);
@@ -60,19 +60,19 @@ int position_to_index(renderer *r, Vec2i v) {
   return index;
 }
 //
-void render_player(renderer *r, Vec2i p) {
+void render_player(renderer* r, Vec2i p) {
   int index = position_to_index(r, p);
   r->buffer[index] = 'A';
 }
 
-void render_enemy(renderer *r, Vec2i p) {
+void render_enemy(renderer* r, Vec2i p) {
   int index = position_to_index(r, p);
   r->buffer[index] = 'V';
 }
 //
 
 // TODO: move to a different location
-int c_str_len(const char *c) {
+int c_str_len(const char* c) {
   int len = 0;
   while (c[len] != '\0') {
     len++;
@@ -80,7 +80,7 @@ int c_str_len(const char *c) {
   return len;
 }
 
-void render_char_at_offset(renderer *r, const char *c, int offset) {
+void render_char_at_offset(renderer* r, const char* c, int offset) {
   int len = c_str_len(c);
   assert(len != 0);
   assert(offset < r->buffer_size);
@@ -90,53 +90,49 @@ void render_char_at_offset(renderer *r, const char *c, int offset) {
   }
 }
 
-int calc_offset_top_right(renderer *r, size_t l) {
+int calc_offset_top_right(renderer* r, size_t l) {
   return r->terminal_size.x - l;
 }
-int calc_offset_bottom_right(renderer *r, size_t l) {
+int calc_offset_bottom_right(renderer* r, size_t l) {
   return (r->buffer_size - l);
 }
 
-void render_ui_elm(renderer *r, Vec2i ancher, Vec2i offset, const char *buffer,
+void render_ui_elm(renderer* r, Vec2i ancher, Vec2i offset, const char* buffer,
                    int buffer_size) {
 
   Vec2i o = zero_vec();
   switch (ancher.y) {
-  case 0:
-    // make the char middle algin
-    o.y = r->terminal_size.y / 2 + offset.y;
-    break;
-  case 1:
-    // make the char top align
-    o.y = 0 + offset.y;
-    break;
-  case -1:
-    // make the char bottom align
-    o.y = r->terminal_size.y - offset.y - 1;
-    break;
-  default:
-    assert(false && "unknown input for ancher y");
-    break;
+    case 0:
+      // make the char middle algin
+      o.y = r->terminal_size.y / 2 + offset.y;
+      break;
+    case 1:
+      // make the char top align
+      o.y = 0 + offset.y;
+      break;
+    case -1:
+      // make the char bottom align
+      o.y = r->terminal_size.y - offset.y - 1;
+      break;
+    default: assert(false && "unknown input for ancher y"); break;
   }
   assert(o.y >= 0);
   assert(o.y <= r->terminal_size.y);
 
   switch (ancher.x) {
-  case 0:
-    // make the char center algin
-    o.x = (r->terminal_size.x - buffer_size) / 2 + offset.x;
-    break;
-  case 1:
-    // make the char right align
-    o.x = r->terminal_size.x - buffer_size - offset.x;
-    break;
-  case -1:
-    // make the char top align
-    o.x = 0 + offset.x;
-    break;
-  default:
-    assert(false && "unknown input for ancher x");
-    break;
+    case 0:
+      // make the char center algin
+      o.x = (r->terminal_size.x - buffer_size) / 2 + offset.x;
+      break;
+    case 1:
+      // make the char right align
+      o.x = r->terminal_size.x - buffer_size - offset.x;
+      break;
+    case -1:
+      // make the char top align
+      o.x = 0 + offset.x;
+      break;
+    default: assert(false && "unknown input for ancher x"); break;
   }
   assert(o.x >= 0);
   assert(o.x <= r->terminal_size.x);
@@ -147,7 +143,7 @@ void render_ui_elm(renderer *r, Vec2i ancher, Vec2i offset, const char *buffer,
   render_char_at_offset(r, buffer, index);
 }
 
-void render_input(renderer *r, Input i) {
+void render_input(renderer* r, Input i) {
   int l = snprintf(buffer, BUFFER_SIZE,
                    "| input  x:%d  y:%d  fire:%d is_input:%d  |", i.ax, i.ay,
                    i.fire, i.is_input);
@@ -156,7 +152,7 @@ void render_input(renderer *r, Input i) {
                 l);
 };
 
-void render_player_pos(renderer *r, Player *p) {
+void render_player_pos(renderer* r, Player* p) {
   int l = snprintf(buffer, 64, "| X:%lu * Y:%lu | dx:%d dy:%d |",
                    (unsigned long)p->position.x, (unsigned long)p->position.y,
                    p->velocity.x, p->velocity.y);
@@ -165,7 +161,7 @@ void render_player_pos(renderer *r, Player *p) {
   render_ui_elm(r, (Vec2i){.x = -1, .y = -1}, (Vec2i){.x = 1, .y = 1}, buffer,
                 l);
 }
-void render_window_size(renderer *r) {
+void render_window_size(renderer* r) {
   int l = snprintf(buffer, BUFFER_SIZE, "| width:%lu * height:%lu |",
                    (unsigned long)r->terminal_size.x,
                    (unsigned long)r->terminal_size.y);
@@ -175,7 +171,7 @@ void render_window_size(renderer *r) {
   render_ui_elm(r, (Vec2i){.x = 1, .y = 1}, (Vec2i){.x = 0, .y = 0}, buffer, l);
 }
 
-void render_ui(renderer *r, GameState *gs) {
+void render_ui(renderer* r, GameState* gs) {
   char border_char = '+';
 
   // render borders
@@ -200,13 +196,13 @@ void render_ui(renderer *r, GameState *gs) {
   render_input(r, gs->input);
 }
 
-void render_bullet(renderer *r, bullet *b) {
+void render_bullet(renderer* r, bullet* b) {
   // get position
   int index = position_to_index(r, b->position);
   r->buffer[index] = '|';
 }
 
-void render(renderer *r, GameState *gs) {
+void render(renderer* r, GameState* gs) {
   renderer_clear(r, ' ');
   render_player(r, gs->player.position);
   if (gs->enemy.is_active) {

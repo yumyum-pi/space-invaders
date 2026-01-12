@@ -20,6 +20,6 @@ Player new_player(void);
 Gun new_gun(int fire_rate, int reload_rate);
 Gun new_gun_default(void);
 
-bool gun_should_fire(Gun *g, int frame_count);
+bool gun_should_fire(Gun* g, int frame_count);
 
-#endif // !PLAYER_H
+#endif  // !PLAYER_H

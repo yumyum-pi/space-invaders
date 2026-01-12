@@ -1,10 +1,10 @@
 #include "./terminal.h"
-#include "./utils/math.h"
 #include <assert.h>
 #include <libc.h>
 #include <stdlib.h>
 #include <termios.h>
 #include <unistd.h>
+#include "./utils/math.h"
 
 Vec2i t_get_terminal_size() {
   struct winsize size;
@@ -75,7 +75,7 @@ void t_enableRawMode() {
 
   // Set minimum number of characters for read() to return (VMIN) and a timeout
   // (VTIME)
-  raw.c_cc[VMIN] = 0; // Read returns as soon as there is any input
+  raw.c_cc[VMIN] = 0;  // Read returns as soon as there is any input
   raw.c_cc[VTIME] = 0;
 
   // Apply the new terminal attributes
@@ -83,7 +83,7 @@ void t_enableRawMode() {
   t_enter_alt_screen();
 }
 
-void t_print_frame(char *buffer, int buffer_size) {
+void t_print_frame(char* buffer, int buffer_size) {
   // write(STDOUT_FILENO, "\x1b[H\x1b[2J", 7); // clear screen
   // Move cursor to home (1,1) without clearing the whole screen
   write(STDOUT_FILENO, "\x1b[H", 3);
