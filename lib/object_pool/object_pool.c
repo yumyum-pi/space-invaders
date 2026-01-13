@@ -1,6 +1,7 @@
 #include "./object_pool.h"
 #include <assert.h>
 #include <stdalign.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -99,7 +100,7 @@ void object_pool_return(Pool* p, void* payload_ptr) {
   Object* obj = (Object*)((uint8_t*)payload_ptr - p->object_size);
 
   assert((uint8_t*)(obj) >= base);
-  assert((uint8_t*)(obj) + p->object_payload_size >= end);
+  assert((uint8_t*)(obj) + p->object_payload_size <= end);
   assert(obj != NULL);
   assert(obj->is_used == true);
 
@@ -111,4 +112,28 @@ void remove_object_pool(Pool* p) {
   assert(p->memory != NULL);
   free(p->memory);
   free(p);
+};
+
+void object_pool_itr(Pool* p, Pool_func_itr* func, void* args) {
+  if (p == NULL || p->memory == NULL) {
+    return;
+  }
+  // loop over the objects and return object
+  Object* obj;
+  uint8_t* base = (uint8_t*)(p->memory);
+  uint8_t* end = base + p->bytes_count;
+
+  for (size_t offset = 0; offset < p->pool_size; offset++) {
+    obj = (Object*)(base + (offset * p->object_payload_size));
+
+    assert((uint8_t*)(obj) >= base);
+    assert((uint8_t*)(obj) + p->object_payload_size <= end);
+    assert(obj != NULL);
+
+    if (obj->is_used) {
+      assert(obj->payload_ptr != NULL);
+      func(obj->payload_ptr, args);
+    }
+  }
+  return;
 };

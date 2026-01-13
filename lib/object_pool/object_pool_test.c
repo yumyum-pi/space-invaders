@@ -77,6 +77,54 @@ void test_alignment() {
   remove_object_pool(pool);
   printf("PASSED\n");
 }
+typedef struct {
+  float health;
+} Enemy;
+
+// This matches your Pool_func_itr signature: void func(void* payload, void* args)
+void apply_damage(void* payload, void* args) {
+  Enemy* enemy = (Enemy*)payload;
+  float damage = *(float*)args;
+  enemy->health -= damage;
+}
+
+void test_iterator() {
+  printf("Testing object_pool_itr... ");
+
+  // 1. Setup pool and data
+  Pool* pool = new_object_pool(sizeof(Enemy), 10);
+
+  // Borrow 3 objects
+  Enemy* e1 = (Enemy*)object_pool_borrow(pool);
+  Enemy* e2 = (Enemy*)object_pool_borrow(pool);
+  Enemy* e3 = (Enemy*)object_pool_borrow(pool);
+
+  e1->health = 100.0f;
+  e2->health = 100.0f;
+  e3->health = 100.0f;
+
+  // 2. Run Iterator
+  float damage_amount = 25.0f;
+  object_pool_itr(pool, apply_damage, &damage_amount);
+
+  // 3. Verify
+  assert(e1->health == 75.0f);
+  assert(e2->health == 75.0f);
+  assert(e3->health == 75.0f);
+
+  // 4. Test that it skips unused objects
+  // If we return e2, the iterator shouldn't touch it anymore
+  object_pool_return(pool, e2);
+  float more_damage = 10.0f;
+  object_pool_itr(pool, apply_damage, &more_damage);
+
+  assert(e1->health == 65.0f);  // Was 75, now 65
+  assert(e2->health == 75.0f);  // Should still be 75 because it's not "used"
+  assert(e3->health == 65.0f);  // Was 75, now 65
+
+  remove_object_pool(pool);
+  printf("PASSED\n");
+}
 
 int main() {
   printf("--- Starting Pool Tests ---\n");
@@ -84,6 +132,7 @@ int main() {
   test_pool_exhaustion();
   test_recycling();
   test_alignment();
+  test_iterator();
   printf("--- All Tests Passed! ---\n");
   return 0;
 }
