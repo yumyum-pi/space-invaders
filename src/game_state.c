@@ -17,12 +17,7 @@ GameState game_state_init(Vec2i terminal_size, const char* title) {
       .gun = new_gun_default(),
   };
 
-  bullet b = {
-      .position = zero_vec(),
-      .fired_by = 0,
-      .speed = 1,
-      .is_active = true,
-  };
+  Pool* bullet_pool = new_object_pool(sizeof(bullet), 20);
 
   Enemy e = new_enemy((Vec2i){terminal_size.x / 2, 4}, 10);
   Vec2i bounds_min = {
@@ -44,6 +39,6 @@ GameState game_state_init(Vec2i terminal_size, const char* title) {
       .player = p,
       .enemy = e,
       .frame_count = 1,
-      .bullet = b,
+      .bullet_pool = bullet_pool,
   };
 }

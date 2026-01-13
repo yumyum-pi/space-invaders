@@ -1,5 +1,6 @@
 #include "./game_update.h"
 #include <assert.h>
+#include "../lib/object_pool/object_pool.h"
 #include "bullet.h"
 #include "enemy.h"
 #include "game_state.h"
@@ -118,34 +119,46 @@ void update_enemy(Enemy* e, int frame_count, Vec2i terminal_size) {
     e->position = clamp_vec2i(e->position, zero_vec(), terminal_size);
   }
 }
-void update_bullet(GameState* g) {
-  Vec2i* position = &(g->bullet.position);
-  position->y -= g->bullet.speed;
+//
+typedef struct {
+  Vec2i terminal_size;
+  Pool* p;
+} sometype;
+
+void update_bullet_itr_wrapper(void* payload, void* args) {
+  bullet* b = (bullet*)payload;
+  sometype* st = (sometype*)args;
+  Vec2i* position = &(b->position);
+  position->y -= b->speed;
 
   // bounds
-  if (!is_point_in_rect(*position, zero_vec(), g->terminal_size)) {
+  if (!is_point_in_rect(*position, zero_vec(), st->terminal_size)) {
     *position = zero_vec();
-    g->bullet.is_active = false;
+    // return the bullet
+    object_pool_return(st->p, b);
   }
 };
 
 void fire_bullet(GameState* g, Vec2i pos) {
-  g->bullet.is_active = true;
-  g->bullet.position = pos;
+  // borrow bullet
+  bullet* b = object_pool_borrow(g->bullet_pool);
+
+  b->position = pos;
+  b->speed = 1;
 };
 
-void player_bullet(bullet* pb, Enemy* e) {
-  // check if they are in the same coordinates
+void bullet_obj_pool_itr_wrapper(void* payload, void* args) {
+  bullet* pb = (bullet*)payload;
+  Enemy* e = (Enemy*)args;
   if (is_eq_vec2i(pb->position, e->position)) {
     e->is_active = false;
   }
-};
+}
 
 void update_collision(GameState* g) {
   // check if the bullet has the same position as enemey
-  bullet* pb = &(g->bullet);
   Enemy* e = &(g->enemy);
-  player_bullet(pb, e);
+  object_pool_itr(g->bullet_pool, bullet_obj_pool_itr_wrapper, e);
 }
 
 void update_player(GameState* g, const Input* in) {
@@ -176,10 +189,12 @@ void game_update(GameState* g) {
       update_enemy(e, g->frame_count, g->terminal_size);
     }
   }
+  sometype sm = {
+      .terminal_size = g->terminal_size,
+      .p = g->bullet_pool,
+  };
 
-  if (g->bullet.is_active) {
-    update_bullet(g);
-  }
+  object_pool_itr(g->bullet_pool, update_bullet_itr_wrapper, &sm);
 
   // check for collision
   update_collision(g);

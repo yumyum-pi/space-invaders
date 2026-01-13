@@ -2,6 +2,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "../lib/object_pool/object_pool.h"
 #include "./terminal.h"
 #include "./utils/math.h"
 #include "assert.h"
@@ -196,7 +197,9 @@ void render_ui(renderer* r, GameState* gs) {
   render_input(r, gs->input);
 }
 
-void render_bullet(renderer* r, bullet* b) {
+void render_bullet(void* payload, void* args) {
+  renderer* r = (renderer*)args;
+  bullet* b = (bullet*)payload;
   // get position
   int index = position_to_index(r, b->position);
   r->buffer[index] = '|';
@@ -209,9 +212,7 @@ void render(renderer* r, GameState* gs) {
     render_enemy(r, gs->enemy.position);
   }
   render_ui(r, gs);
-  if (gs->bullet.is_active) {
-    render_bullet(r, &gs->bullet);
-  }
+  object_pool_itr(gs->bullet_pool, render_bullet, r);
 
   t_print_frame(r->buffer, r->buffer_size);
 }

@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <time.h>
+#include "../lib/object_pool/object_pool.h"
 #include "bullet.h"
 #include "enemy.h"
 #include "input.h"
@@ -17,7 +18,7 @@ typedef struct {
   Player player;
   int frame_count;
   Enemy enemy;
-  bullet bullet;
+  Pool* bullet_pool;
   Vec2i terminal_size;
   Vec2i bounds_min;
   Vec2i bounds_max;
