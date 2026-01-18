@@ -4,7 +4,7 @@
 #include "./test.h"
 
 TEST(can_fire_with_ammo_and_no_cooldown) {
-  Gun g = new_gun(10, 60, 5);
+  Gun g = new_gun(10, 60, 5, PLAYER_BULLET_DIRECTION);
   g.last_fired_frame = 0;
 
   bool result = gun_fire(&g, 10, true);
@@ -13,7 +13,7 @@ TEST(can_fire_with_ammo_and_no_cooldown) {
 }
 
 TEST(cannot_fire_during_cooldown) {
-  Gun g = new_gun(10, 60, 5);
+  Gun g = new_gun(10, 60, 5, PLAYER_BULLET_DIRECTION);
   g.last_fired_frame = 0;
 
   bool result = gun_fire(&g, 5, true);  // Only 5 frames passed, need 10
@@ -21,7 +21,7 @@ TEST(cannot_fire_during_cooldown) {
 }
 
 TEST(cannot_fire_without_ammo) {
-  Gun g = new_gun(10, 60, 5);
+  Gun g = new_gun(10, 60, 5, PLAYER_BULLET_DIRECTION);
   g.remaining_rounds = 0;
   g.last_fired_frame = 0;
 
@@ -30,7 +30,7 @@ TEST(cannot_fire_without_ammo) {
 }
 
 TEST(cannot_fire_while_reloading) {
-  Gun g = new_gun(10, 60, 5);
+  Gun g = new_gun(10, 60, 5, PLAYER_BULLET_DIRECTION);
   g.is_reloading = true;
   g.last_fired_frame = 0;
 
@@ -40,7 +40,7 @@ TEST(cannot_fire_while_reloading) {
 }
 
 TEST(reload_completes_and_refills_magazine) {
-  Gun g = new_gun(10, 60, 5);
+  Gun g = new_gun(10, 60, 5, PLAYER_BULLET_DIRECTION);
   g.is_reloading = true;
   g.remaining_rounds = 0;
   g.last_fired_frame = 0;
@@ -54,7 +54,7 @@ TEST(reload_completes_and_refills_magazine) {
 }
 
 TEST(fire_rate_boundary_exact) {
-  Gun g = new_gun(10, 60, 5);
+  Gun g = new_gun(10, 60, 5, PLAYER_BULLET_DIRECTION);
   g.last_fired_frame = 0;
 
   // Exactly at fire rate boundary
@@ -68,7 +68,7 @@ TEST(fire_rate_boundary_exact) {
 }
 
 TEST(reload_boundary_exact) {
-  Gun g = new_gun(10, 60, 5);
+  Gun g = new_gun(10, 60, 5, PLAYER_BULLET_DIRECTION);
   g.is_reloading = true;
   g.last_fired_frame = 0;
 
@@ -84,7 +84,7 @@ TEST(reload_boundary_exact) {
 }
 
 TEST(multiple_shots_sequence) {
-  Gun g = new_gun(10, 60, 3);
+  Gun g = new_gun(10, 60, 3, PLAYER_BULLET_DIRECTION);
 
   // Shot 1
   assert(gun_fire(&g, 0, true) == true);
@@ -109,7 +109,7 @@ TEST(multiple_shots_sequence) {
 }
 
 TEST(reload_then_fire_full_sequence) {
-  Gun g1 = new_gun(10, 60, 3);
+  Gun g1 = new_gun(10, 60, 3, PLAYER_BULLET_DIRECTION);
   g1.remaining_rounds = 0;
   g1.is_reloading = true;
   g1.last_fired_frame = 0;
@@ -123,7 +123,7 @@ TEST(reload_then_fire_full_sequence) {
   assert(g1.remaining_rounds == 3);
   assert(g1.last_fired_frame == 0);
 
-  Gun g2 = new_gun(10, 60, 3);
+  Gun g2 = new_gun(10, 60, 3, PLAYER_BULLET_DIRECTION);
   g2.remaining_rounds = 0;
   g2.is_reloading = true;
   g2.last_fired_frame = 0;
@@ -135,7 +135,7 @@ TEST(reload_then_fire_full_sequence) {
 }
 
 TEST(auto_reload_when_magazine_empty) {
-  Gun g = new_gun(10, 60, 3);
+  Gun g = new_gun(10, 60, 3, PLAYER_BULLET_DIRECTION);
   g.remaining_rounds = 1;
   g.last_fired_frame = 0;
 

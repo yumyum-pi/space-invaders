@@ -1,8 +1,17 @@
 #include "./gun.h"
 #include <assert.h>
+#include "utils/math.h"
 
-Gun new_gun(int fire_rate, int reload_rate, int magazine_size) {
+const Vec2i PLAYER_BULLET_DIRECTION = {
+    .x = 0,
+    .y = -1,
+};
+
+Gun new_gun(int fire_rate, int reload_rate, int magazine_size,
+            Vec2i direction) {
   Gun g = {
+      .direction = direction,
+      .bullet_type = 0,
       .fire_rate = fire_rate,
       .reload_rate = reload_rate,
       .last_fired_frame = -fire_rate,
@@ -14,7 +23,7 @@ Gun new_gun(int fire_rate, int reload_rate, int magazine_size) {
 
 // TODO: remove the following number with FPS
 Gun new_gun_default(void) {
-  return new_gun(1 * 24, 5 * 24, 5);
+  return new_gun(1 * 24, 5 * 24, 5, PLAYER_BULLET_DIRECTION);
 }
 
 // set reload false
