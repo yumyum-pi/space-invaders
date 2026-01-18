@@ -23,6 +23,5 @@ Gun new_gun(int fire_rate, int reload_rate, int magazine_size);
 Gun new_gun_default(void);
 
 bool gun_fire(Gun* g, int frame_count, bool should_fire);
-bool gun_should_fire(Gun* g, int frame_count);
 
 #endif  // !PLAYER_H

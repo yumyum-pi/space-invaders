@@ -54,8 +54,7 @@ bool gun_fire(Gun* g, int frame_count, bool should_fire) {
     if (last_fire_diff >= g->reload_rate) {
       gun_reload(g);
     } else {
-      // Still reloading
-      return false;
+      return false;  // Still reloading
     }
   }
 

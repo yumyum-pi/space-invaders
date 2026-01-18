@@ -7,7 +7,7 @@ PROGRAM_NAME = app
 SRC = ./src/*.c ./src/**/*.c ./lib/object_pool/object_pool.c
 
 OBJECT_POOL_SRC = ./lib/object_pool/object_pool_test.c ./lib/object_pool/object_pool.c
-GUN_SRC = ./src/player.c ./test/player_gun_test.c ./src/utils/math.c
+GUN_SRC = ./test/player_gun_test.c ./src/utils/math.c
 
 debug: $(SRC)
 	$(CC) $(CFLAGS) $(DEBUG) $^ -o $(BUILD_DIR)/$(PROGRAM_NAME)
