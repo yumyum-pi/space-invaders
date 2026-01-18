@@ -142,8 +142,8 @@ void update_bullet_itr_wrapper(void* payload, void* args) {
 void fire_bullet(GameState* g, Vec2i pos) {
   // borrow bullet
   bullet* b = object_pool_borrow(g->bullet_pool);
-
   b->position = pos;
+  b->is_active = true;
   b->speed = 1;
 };
 
@@ -169,8 +169,7 @@ void update_player(GameState* g, const Input* in) {
   update_player_velocity(in, v);
   update_player_position(pos, v, g);
   Gun* gun = &(p->gun);
-  if (fire && gun_should_fire(gun, g->frame_count)) {
-    gun->last_fired_frame = g->frame_count;
+  if (gun_fire(gun, g->frame_count, fire)) {
     fire_bullet(g, *pos);
   }
 }

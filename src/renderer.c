@@ -167,10 +167,23 @@ void render_window_size(renderer* r) {
                    (unsigned long)r->terminal_size.x,
                    (unsigned long)r->terminal_size.y);
   assert(l != 0);
-  assert(l != 0);
 
   render_ui_elm(r, (Vec2i){.x = 1, .y = 1}, (Vec2i){.x = 0, .y = 0}, buffer, l);
 }
+
+void render_gun(renderer* r, Gun* g) {
+  int l = 0;
+  if (g->is_reloading) {
+
+    l = snprintf(buffer, BUFFER_SIZE, "| Reloading |");
+  } else {
+
+    l = snprintf(buffer, BUFFER_SIZE, "| Magzine:%d |", g->remaining_rounds);
+  }
+  assert(l != 0);
+  render_ui_elm(r, (Vec2i){.x = -1, .y = -1}, (Vec2i){.x = 1, .y = 2}, buffer,
+                l);
+};
 
 void render_ui(renderer* r, GameState* gs) {
   char border_char = '+';
@@ -195,6 +208,9 @@ void render_ui(renderer* r, GameState* gs) {
 
   // show inputs on screen
   render_input(r, gs->input);
+
+  // show gun
+  render_gun(r, &(gs->player.gun));
 }
 
 void render_bullet(void* payload, void* args) {
@@ -211,8 +227,8 @@ void render(renderer* r, GameState* gs) {
   if (gs->enemy.is_active) {
     render_enemy(r, gs->enemy.position);
   }
-  render_ui(r, gs);
   object_pool_itr(gs->bullet_pool, render_bullet, r);
+  render_ui(r, gs);
 
   t_print_frame(r->buffer, r->buffer_size);
 }
