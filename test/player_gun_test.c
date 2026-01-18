@@ -1,6 +1,6 @@
 #include <assert.h>
 #include <stdio.h>
-#include "../src/player.c"
+#include "../src/gun.c"
 #include "./test.h"
 
 TEST(can_fire_with_ammo_and_no_cooldown) {
