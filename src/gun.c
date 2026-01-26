@@ -4,6 +4,11 @@
 
 const Vec2i PLAYER_BULLET_DIRECTION = {
     .x = 0,
+    .y = 1,
+};
+
+const Vec2i ENEMY_BULLET_DIRECTION = {
+    .x = 0,
     .y = -1,
 };
 
@@ -22,8 +27,12 @@ Gun new_gun(int fire_rate, int reload_rate, int magazine_size,
 };
 
 // TODO: remove the following number with FPS
-Gun new_gun_default(void) {
+Gun new_gun_default_player(void) {
   return new_gun(1 * 24, 5 * 24, 5, PLAYER_BULLET_DIRECTION);
+}
+
+Gun new_gun_default_enemy(void) {
+  return new_gun(2 * 24, 5 * 24, 15, ENEMY_BULLET_DIRECTION);
 }
 
 // set reload false

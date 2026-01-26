@@ -1,6 +1,7 @@
 #include "game_state.h"
 #include "bullet.h"
 #include "enemy.h"
+#include "gun.h"
 #include "player.h"
 #include "utils/math.h"
 
@@ -14,7 +15,7 @@ GameState game_state_init(Vec2i terminal_size, const char* title) {
   Player p = {
       .position = create_player_start_pos(terminal_size),
       .velocity = zero_vec(),
-      .gun = new_gun_default(),
+      .gun = new_gun_default_player(),
   };
 
   Pool* bullet_pool = new_object_pool(sizeof(bullet), 20);

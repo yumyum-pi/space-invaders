@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include "./utils/math.h"
+#include "gun.h"
 
 typedef struct {
   Vec2i position;
@@ -11,6 +12,7 @@ typedef struct {
   int health;
   bool is_active;
   float speed;
+  Gun gun;
 } Enemy;
 
 Enemy new_enemy(Vec2i position, int health);

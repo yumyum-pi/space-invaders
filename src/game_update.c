@@ -8,6 +8,13 @@
 #include "player.h"
 #include "utils/math.h"
 
+void fire_bullet(GameState* g, Vec2i direction, Vec2i pos) {
+  // borrow bullet
+  bullet* b = object_pool_borrow(g->bullet_pool);
+  b->position = pos;
+  b->is_active = true;
+  b->speed = direction.y;
+};
 void update_player_velocity(const Input* in, Vec2i* v) {
   {
     const Vec2i accleration = {
@@ -106,13 +113,20 @@ int ping_pong_ease_in_out(int min, int max, float speed, int frame_count) {
   return (int)(min + (eased_t * diff));
 }
 
-void update_enemy(Enemy* e, int frame_count, Vec2i terminal_size) {
+void update_enemy(GameState* g, Enemy* e, int frame_count,
+                  Vec2i terminal_size) {
   {
     float speed = e->speed;
     // TODO: the bound_offset_x should not be hard coded
     int offset = 64;  // left and right extrems of ping pong positions
     int x = ping_pong_ease_in_out(-offset, offset, speed, frame_count);
     e->position.x = e->target_position.x + x;
+  }
+
+  Gun* gun = &(e->gun);
+
+  if (gun_fire(gun, g->frame_count, true)) {
+    fire_bullet(g, gun->direction, e->position);
   }
   // TODO: the bonding box should be defined by the gamestate
   if (!is_point_in_rect(e->position, zero_vec(), terminal_size)) {
@@ -131,20 +145,15 @@ void update_bullet_itr_wrapper(void* payload, void* args) {
   Vec2i* position = &(b->position);
   position->y -= b->speed;
 
+  Vec2i t = st->terminal_size;
+  t.x--;
+  t.y--;
   // bounds
-  if (!is_point_in_rect(*position, zero_vec(), st->terminal_size)) {
+  if (!is_point_in_rect(*position, zero_vec(), t)) {
     *position = zero_vec();
     // return the bullet
     object_pool_return(st->p, b);
   }
-};
-
-void fire_bullet(GameState* g, Vec2i pos) {
-  // borrow bullet
-  bullet* b = object_pool_borrow(g->bullet_pool);
-  b->position = pos;
-  b->is_active = true;
-  b->speed = 1;
 };
 
 void bullet_obj_pool_itr_wrapper(void* payload, void* args) {
@@ -170,7 +179,7 @@ void update_player(GameState* g, const Input* in) {
   update_player_position(pos, v, g);
   Gun* gun = &(p->gun);
   if (gun_fire(gun, g->frame_count, fire)) {
-    fire_bullet(g, *pos);
+    fire_bullet(g, gun->direction, *pos);
   }
 }
 
@@ -185,7 +194,7 @@ void game_update(GameState* g) {
   {
     Enemy* e = &g->enemy;
     if (e->is_active) {
-      update_enemy(e, g->frame_count, g->terminal_size);
+      update_enemy(g, e, g->frame_count, g->terminal_size);
     }
   }
   sometype sm = {

@@ -14,6 +14,7 @@ typedef struct {
 } Gun;
 
 Gun new_gun(int fire_rate, int reload_rate, int magazine_size, Vec2i direction);
-Gun new_gun_default(void);
+Gun new_gun_default_player(void);
+Gun new_gun_default_enemy(void);
 bool gun_fire(Gun* g, int frame_count, bool should_fire);
 #endif  // !GUN_H
