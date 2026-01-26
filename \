@@ -173,15 +173,19 @@ void bullet_obj_pool_enemy_itr_wrapper(void* payload, void* args) {
   BulletCollisionContext* context = (BulletCollisionContext*)args;
 
   // enemy bullet speed = -1;
-  // enmey bullet check of player collision
-  if (b->speed == -1 && is_eq_vec2i(b->position, context->player->position)) {
-    context->player->health--;
-    object_pool_return(context->bullet_pool, b);  // return obj
-    //player bullet check for enmey
-  } else if (b->speed == 1 &&
-             is_eq_vec2i(b->position, context->enemy->position)) {
-    context->enemy->is_active = false;
-    object_pool_return(context->bullet_pool, b);  // return obj
+  if (b->speed == -1) {
+    // enemy
+    if (is_eq_vec2i(b->position, context->enemy->position)) {
+      context->enemy->is_active = false;
+      // return obj
+      object_pool_return(context->bullet_pool, b);
+    }
+  } else if (b->speed == 1) {
+    //player
+    if (is_eq_vec2i(b->position, context->player->position)) {
+      context->player->health--;
+      object_pool_return(context->bullet_pool, b);
+    }
   }
 }
 
