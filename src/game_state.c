@@ -13,6 +13,7 @@ Vec2i create_player_start_pos(Vec2i terminal_size) {
 }
 GameState game_state_init(Vec2i terminal_size, const char* title) {
   Player p = {
+      .health = 1,
       .position = create_player_start_pos(terminal_size),
       .velocity = zero_vec(),
       .gun = new_gun_default_player(),

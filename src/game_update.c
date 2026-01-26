@@ -156,7 +156,8 @@ void update_bullet_itr_wrapper(void* payload, void* args) {
   }
 };
 
-void bullet_obj_pool_itr_wrapper(void* payload, void* args) {
+// How to handle enemy from object pool
+void bullet_obj_pool_enemy_itr_wrapper(void* payload, void* args) {
   bullet* pb = (bullet*)payload;
   Enemy* e = (Enemy*)args;
   if (is_eq_vec2i(pb->position, e->position)) {
@@ -164,10 +165,20 @@ void bullet_obj_pool_itr_wrapper(void* payload, void* args) {
   }
 }
 
+void bullet_obj_pool_player_itr_wrapper(void* payload, void* args) {
+  bullet* pb = (bullet*)payload;
+  Player* p = (Player*)args;
+  if (is_eq_vec2i(pb->position, p->position)) {
+    p->health--;
+  }
+}
+
 void update_collision(GameState* g) {
   // check if the bullet has the same position as enemey
   Enemy* e = &(g->enemy);
-  object_pool_itr(g->bullet_pool, bullet_obj_pool_itr_wrapper, e);
+  Player* p = &(g->player);
+  object_pool_itr(g->bullet_pool, bullet_obj_pool_enemy_itr_wrapper, e);
+  object_pool_itr(g->bullet_pool, bullet_obj_pool_player_itr_wrapper, p);
 }
 
 void update_player(GameState* g, const Input* in) {
@@ -206,4 +217,8 @@ void game_update(GameState* g) {
 
   // check for collision
   update_collision(g);
+
+  if (g->player.health <= 0) {
+    g->is_running = false;
+  }
 }

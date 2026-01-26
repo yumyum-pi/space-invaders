@@ -5,6 +5,7 @@
 #include "gun.h"
 
 typedef struct {
+  int health;
   Vec2i position;
   Vec2i velocity;
   Gun gun;
