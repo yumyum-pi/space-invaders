@@ -3,13 +3,14 @@
 
 #include "./game_level_state.h"
 #include "./input.h"
+#include "game_state.h"
 #include "utils/math.h"
 
-void game_update(GameLevelState* g);
+void game_update(GameState* gs, GameLevelState* level);
 void game_update_init(Vec2i terminal_size);
 
-void frame_begin(GameLevelState* gs);
-void frame_sleep(GameLevelState* gs);
+void frame_begin(GameState* gs);
+void frame_sleep(GameState* gs);
 
 #endif  // !GAME_UPDATE
 // Reminder: Terminal does NOT track simultaneous key state

@@ -144,7 +144,7 @@ void render_ui_elm(renderer* r, Vec2i ancher, Vec2i offset, const char* buffer,
   render_char_at_offset(r, buffer, index);
 }
 
-void render_input(renderer* r, Input i) {
+void render_input(renderer* r, GameInput i) {
   int l = snprintf(buffer, BUFFER_SIZE,
                    "| input  x:%d  y:%d  fire:%d is_input:%d  |", i.ax, i.ay,
                    i.fire, i.is_input);
@@ -184,10 +184,9 @@ void render_gun(renderer* r, Gun* g) {
   render_ui_elm(r, (Vec2i){.x = -1, .y = -1}, (Vec2i){.x = 1, .y = 2}, buffer,
                 l);
 };
+void render_border(renderer* r) {
 
-void render_ui(renderer* r, GameLevelState* gs) {
   char border_char = '+';
-
   // render borders
   int w = 0;
   int l_line = r->buffer_size - r->terminal_size.x;
@@ -198,6 +197,10 @@ void render_ui(renderer* r, GameLevelState* gs) {
       r->buffer[i] = border_char;
     }
   }
+}
+
+void render_ui(renderer* r, GameLevelState* gs) {
+  render_border(r);
 
   // enter title on top left
   render_char_at_offset(r, gs->title, 2);
@@ -221,7 +224,7 @@ void render_bullet(void* payload, void* args) {
   r->buffer[index] = '|';
 }
 
-void render(renderer* r, GameLevelState* gs) {
+void render_level(renderer* r, GameLevelState* gs) {
   renderer_clear(r, ' ');
   render_player(r, gs->player.position);
   if (gs->enemy.is_active) {
@@ -230,5 +233,22 @@ void render(renderer* r, GameLevelState* gs) {
   object_pool_itr(gs->bullet_pool, render_bullet, r);
   render_ui(r, gs);
 
+  t_print_frame(r->buffer, r->buffer_size);
+}
+void render_menu_input(renderer* r, MenuInput* mi) {
+  MenuInput i = *mi;
+  int l = snprintf(buffer, BUFFER_SIZE,
+                   "| input  x:%d  y:%d  enter:%d is_input:%d  |", i.ax, i.ay,
+                   i.enter, i.is_input);
+  assert(l != 0);
+  render_ui_elm(r, (Vec2i){.x = 1, .y = -1}, (Vec2i){.x = 1, .y = 1}, buffer,
+                l);
+}
+
+void render_main_menu(renderer* r, MenuInput* mi) {
+  renderer_clear(r, ' ');
+  render_menu_input(r, mi);
+
+  render_border(r);
   t_print_frame(r->buffer, r->buffer_size);
 }

@@ -14,21 +14,14 @@
 #define FRAME_MS (1000 / FPS)
 
 typedef struct {
-  Input input;
+  GameInput input;
   Player player;
   int frame_count;
   Enemy enemy;
   Pool* bullet_pool;
-  Vec2i terminal_size;
-  Vec2i bounds_min;
-  Vec2i bounds_max;
-  bool is_running;
   const char* title;
-  struct timespec frame_start;
-  long target_frame_ms;
-
 } GameLevelState;
 
-GameLevelState game_state_init(Vec2i terminal_size, const char* title);
+GameLevelState game_level_init(Vec2i terminal_size, const char* title);
 
 #endif  // !GAME_LEVEL_STATE_H
