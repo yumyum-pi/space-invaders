@@ -1,7 +1,7 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 #include "./utils/math.h"
-#include "game_state.h"
+#include "game_level_state.h"
 
 typedef struct {
   Vec2i terminal_size;
@@ -11,6 +11,6 @@ typedef struct {
 } renderer;
 
 renderer renderer_init();
-void render(renderer* r, GameState* ge);
+void render(renderer* r, GameLevelState* ge);
 // void renderer_shutdown(renderer *r);
 #endif  // !renderer_H

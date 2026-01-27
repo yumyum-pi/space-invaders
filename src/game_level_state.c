@@ -1,4 +1,4 @@
-#include "game_state.h"
+#include "game_level_state.h"
 #include "bullet.h"
 #include "enemy.h"
 #include "gun.h"
@@ -11,7 +11,8 @@ Vec2i create_player_start_pos(Vec2i terminal_size) {
       .y = terminal_size.y - 8,
   };
 }
-GameState game_state_init(Vec2i terminal_size, const char* title) {
+// TODO: take a struct that defines the no. of emenies
+GameLevelState game_state_init(Vec2i terminal_size, const char* title) {
   Player p = {
       .health = 1,
       .position = create_player_start_pos(terminal_size),
@@ -31,7 +32,7 @@ GameState game_state_init(Vec2i terminal_size, const char* title) {
       .x = terminal_size.x - 16,
       .y = terminal_size.y - 8,
   };
-  return (GameState){
+  return (GameLevelState){
       .is_running = true,
       .title = title,
       .terminal_size = terminal_size,

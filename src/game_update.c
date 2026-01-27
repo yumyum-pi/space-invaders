@@ -3,7 +3,7 @@
 #include "../lib/object_pool/object_pool.h"
 #include "bullet.h"
 #include "enemy.h"
-#include "game_state.h"
+#include "game_level_state.h"
 #include "input.h"
 #include "player.h"
 #include "utils/math.h"
@@ -26,7 +26,7 @@ bool is_Inbounds(Vec2i position) {
   return is_point_in_rect(position, bounding_box_vec[0], bounding_box_vec[1]);
 }
 
-void fire_bullet(GameState* g, Vec2i direction, Vec2i pos) {
+void fire_bullet(GameLevelState* g, Vec2i direction, Vec2i pos) {
   // borrow bullet
   bullet* b = object_pool_borrow(g->bullet_pool);
   // check if bullet is not NULL
@@ -72,7 +72,8 @@ void update_player_velocity(const Input* in, Vec2i* v) {
   return;
 }
 
-void update_player_position(Vec2i* position, Vec2i* velocity, GameState* g) {
+void update_player_position(Vec2i* position, Vec2i* velocity,
+                            GameLevelState* g) {
   position->x += velocity->x;
   position->y += velocity->y;
   // clamp
@@ -85,10 +86,10 @@ static long timespec_diff_ms(const struct timespec* a,
                              const struct timespec* b) {
   return (a->tv_sec - b->tv_sec) * 1000L + (a->tv_nsec - b->tv_nsec) / 1000000L;
 }
-void frame_begin(GameState* gs) {
+void frame_begin(GameLevelState* gs) {
   clock_gettime(CLOCK_MONOTONIC, &gs->frame_start);
 }
-void frame_sleep(GameState* g) {
+void frame_sleep(GameLevelState* g) {
   struct timespec now;
   clock_gettime(CLOCK_MONOTONIC, &now);
 
@@ -136,7 +137,7 @@ int ping_pong_ease_in_out(int min, int max, float speed, int frame_count) {
   return (int)(min + (eased_t * diff));
 }
 
-void update_enemy(GameState* g, Enemy* e, int frame_count) {
+void update_enemy(GameLevelState* g, Enemy* e, int frame_count) {
   {
     float speed = e->speed;
     // TODO: the bound_offset_x should not be hard coded
@@ -199,7 +200,7 @@ void bullet_obj_pool_enemy_itr_wrapper(void* payload, void* args) {
   }
 }
 
-void update_collision(GameState* g) {
+void update_collision(GameLevelState* g) {
   BulletCollisionContext collisionContext = {
       .bullet_pool = g->bullet_pool,
       .player = &(g->player),
@@ -210,7 +211,7 @@ void update_collision(GameState* g) {
                   &collisionContext);
 }
 
-void update_player(GameState* g, const Input* in) {
+void update_player(GameLevelState* g, const Input* in) {
   bool fire = in->fire;
   Player* p = &g->player;
   Vec2i* v = &p->velocity;
@@ -223,7 +224,7 @@ void update_player(GameState* g, const Input* in) {
   }
 }
 
-void game_update(GameState* g) {
+void game_update(GameLevelState* g) {
   const Input* in = &(g->input);
   if (in->quit) {
     g->is_running = 0;

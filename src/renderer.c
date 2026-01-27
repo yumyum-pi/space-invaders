@@ -7,7 +7,7 @@
 #include "./utils/math.h"
 #include "assert.h"
 #include "bullet.h"
-#include "game_state.h"
+#include "game_level_state.h"
 #include "input.h"
 #include "player.h"
 
@@ -185,7 +185,7 @@ void render_gun(renderer* r, Gun* g) {
                 l);
 };
 
-void render_ui(renderer* r, GameState* gs) {
+void render_ui(renderer* r, GameLevelState* gs) {
   char border_char = '+';
 
   // render borders
@@ -221,7 +221,7 @@ void render_bullet(void* payload, void* args) {
   r->buffer[index] = '|';
 }
 
-void render(renderer* r, GameState* gs) {
+void render(renderer* r, GameLevelState* gs) {
   renderer_clear(r, ' ');
   render_player(r, gs->player.position);
   if (gs->enemy.is_active) {

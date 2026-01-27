@@ -1,5 +1,5 @@
-#ifndef GAME_STATE_H
-#define GAME_STATE_H
+#ifndef GAME_LEVEL_STATE_H
+#define GAME_LEVEL_STATE_H
 
 #include <stdbool.h>
 #include <time.h>
@@ -27,8 +27,8 @@ typedef struct {
   struct timespec frame_start;
   long target_frame_ms;
 
-} GameState;
+} GameLevelState;
 
-GameState game_state_init(Vec2i terminal_size, const char* title);
+GameLevelState game_state_init(Vec2i terminal_size, const char* title);
 
-#endif  // !GAME_state_H
+#endif  // !GAME_LEVEL_STATE_H

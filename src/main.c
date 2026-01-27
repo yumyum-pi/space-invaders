@@ -1,12 +1,12 @@
 #include <unistd.h>
-#include "./game_state.h"
+#include "./game_level_state.h"
 #include "./renderer.h"
 #include "game_update.h"
 #include "input.h"
 
 int main() {
   renderer r = renderer_init();
-  GameState gs = game_state_init(r.terminal_size, "This is title");
+  GameLevelState gs = game_state_init(r.terminal_size, "This is title");
   game_update_init(gs.terminal_size);
 
   while (gs.is_running) {
