@@ -7,6 +7,7 @@
 int main() {
   renderer r = renderer_init();
   GameState gs = game_state_init(r.terminal_size, "This is title");
+  game_update_init(gs.terminal_size);
 
   while (gs.is_running) {
     frame_begin(&gs);

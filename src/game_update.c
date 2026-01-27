@@ -8,6 +8,24 @@
 #include "player.h"
 #include "utils/math.h"
 
+static Vec2i bounding_box_vec[2] = {
+    (Vec2i){0, 0},
+    (Vec2i){0, 0},
+};
+
+void game_update_init(Vec2i terminal_size) {
+  Vec2i t = terminal_size;
+  t.x--;
+  t.y--;
+  assert(t.x > 0);
+  assert(t.y > 0);
+  bounding_box_vec[1] = t;
+}
+
+bool is_Inbounds(Vec2i position) {
+  return is_point_in_rect(position, bounding_box_vec[0], bounding_box_vec[1]);
+}
+
 void fire_bullet(GameState* g, Vec2i direction, Vec2i pos) {
   // borrow bullet
   bullet* b = object_pool_borrow(g->bullet_pool);
@@ -118,24 +136,24 @@ int ping_pong_ease_in_out(int min, int max, float speed, int frame_count) {
   return (int)(min + (eased_t * diff));
 }
 
-void update_enemy(GameState* g, Enemy* e, int frame_count,
-                  Vec2i terminal_size) {
+void update_enemy(GameState* g, Enemy* e, int frame_count) {
   {
     float speed = e->speed;
     // TODO: the bound_offset_x should not be hard coded
     int offset = 64;  // left and right extrems of ping pong positions
     int x = ping_pong_ease_in_out(-offset, offset, speed, frame_count);
     e->position.x = e->target_position.x + x;
+    e->position.y++;
+  }
+
+  if (!is_Inbounds(e->position)) {
+    e->is_active = false;
   }
 
   Gun* gun = &(e->gun);
 
   if (gun_fire(gun, g->frame_count, true)) {
     fire_bullet(g, gun->direction, e->position);
-  }
-  // TODO: the bonding box should be defined by the gamestate
-  if (!is_point_in_rect(e->position, zero_vec(), terminal_size)) {
-    e->position = clamp_vec2i(e->position, zero_vec(), terminal_size);
   }
 }
 //
@@ -150,11 +168,7 @@ void update_bullet_itr_wrapper(void* payload, void* args) {
   Vec2i* position = &(b->position);
   position->y -= b->speed;
 
-  Vec2i t = context->terminal_size;
-  t.x--;
-  t.y--;
-  // bounds
-  if (!is_point_in_rect(*position, zero_vec(), t)) {
+  if (!is_Inbounds(*position)) {
     *position = zero_vec();
     // return the bullet
     object_pool_return(context->pool, b);
@@ -220,7 +234,7 @@ void game_update(GameState* g) {
   {
     Enemy* e = &g->enemy;
     if (e->is_active) {
-      update_enemy(g, e, g->frame_count, g->terminal_size);
+      update_enemy(g, e, g->frame_count);
     }
   }
   BulletUpdateContext bulletUpdateContext = {
