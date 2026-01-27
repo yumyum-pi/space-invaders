@@ -25,7 +25,7 @@ Menu* NewMenu(size_t capacity) {
   assert(capacity > 0);
   menu->capacity = capacity;
   menu->length = 0;
-  menu->hover = -1;
+  menu->hover = 0;
 
   // create new names array
   menu->names = (Name*)malloc(sizeof(Name) * capacity);
@@ -45,7 +45,7 @@ MenuFunction* MenuGetSelectedFunction(Menu* menu) {
   if (menu == NULL) {
     return NULL;
   }
-  int index = menu->hover;
+  size_t index = menu->hover;
   if (index < 0 || index >= menu->capacity)
     return NULL;
   if (menu->functions == NULL)

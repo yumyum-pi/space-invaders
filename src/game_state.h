@@ -2,6 +2,7 @@
 #define GAME_STATE_H
 
 #include "game_level_state.h"
+#include "menu.h"
 #include "utils/math.h"
 typedef enum {
   MAIN_MENU,
@@ -12,6 +13,7 @@ typedef enum {
 
 typedef struct {
   GameMode mode;
+  Menu* MainMenu;
   Vec2i terminal_size;
   Vec2i bounds_min;
   Vec2i bounds_max;

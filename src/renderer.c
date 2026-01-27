@@ -9,6 +9,7 @@
 #include "bullet.h"
 #include "game_level_state.h"
 #include "input.h"
+#include "menu.h"
 #include "player.h"
 
 #define BUFFER_SIZE 128
@@ -244,11 +245,26 @@ void render_menu_input(renderer* r, MenuInput* mi) {
   render_ui_elm(r, (Vec2i){.x = 1, .y = -1}, (Vec2i){.x = 1, .y = 1}, buffer,
                 l);
 }
+void render_menu(renderer* r, Menu* menu) {
+  MenuNameBufferSize;
+  for (size_t i = 0; i < menu->length; i++) {
+    int l = 0;
+    if (i == menu->hover) {
 
-void render_main_menu(renderer* r, MenuInput* mi) {
+      l = snprintf(buffer, BUFFER_SIZE, "> %s <", (char*)menu->names[i]);
+    } else {
+
+      l = snprintf(buffer, BUFFER_SIZE, "  %s  ", (char*)menu->names[i]);
+    }
+    render_ui_elm(r, (Vec2i){.x = 0, .y = 0}, (Vec2i){.x = 0, .y = i}, buffer,
+                  l);
+  }
+}
+
+void render_main_menu(renderer* r, Menu* menu) {
   renderer_clear(r, ' ');
-  render_menu_input(r, mi);
-
+  // render_menu_input(r, mi);
   render_border(r);
+  render_menu(r, menu);
   t_print_frame(r->buffer, r->buffer_size);
 }

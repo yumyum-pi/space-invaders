@@ -5,6 +5,7 @@
 #include "./game_update.h"
 #include "./input.h"
 #include "./renderer.h"
+#include "menu.h"
 
 int main() {
   renderer r = renderer_init();
@@ -19,13 +20,9 @@ int main() {
       case MAIN_MENU:
         // capture input
         menu_input = menu_input_poll();
-
-        if (menu_input.quit) {
-          game_state.is_running = 0;
-          break;
-        }
-        // return inputs
-        render_main_menu(&r, &menu_input);
+        MenuUpdateInput(game_state.MainMenu, &menu_input);
+        // render the menu
+        render_main_menu(&r, game_state.MainMenu);
         break;
       case GAME_PAUSE: break;
       case GAME_PLAY:
