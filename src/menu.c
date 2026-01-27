@@ -77,6 +77,11 @@ void MenuUpdateInput(Menu* menu, MenuInput* mi) {
   if (menu == NULL && mi == NULL) {
     return;
   }
+
+  // TODO: make menu q toogle
+  if (mi->quit) {
+    // toggle
+  }
   if (menu->length == 0)
     return;
 

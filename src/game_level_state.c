@@ -1,4 +1,5 @@
 #include "game_level_state.h"
+#include <stdlib.h>
 #include "bullet.h"
 #include "enemy.h"
 #include "gun.h"
@@ -12,7 +13,11 @@ Vec2i create_player_start_pos(Vec2i terminal_size) {
   };
 }
 // TODO: take a struct that defines the no. of emenies
-GameLevelState game_level_init(Vec2i terminal_size, const char* title) {
+GameLevelState* NewGameLevel(Vec2i terminal_size, const char* title) {
+  GameLevelState* level = malloc(sizeof(GameLevelState));
+  if (level == NULL) {
+    return NULL;
+  }
   Player p = {
       .health = 1,
       .position = create_player_start_pos(terminal_size),
@@ -21,13 +26,23 @@ GameLevelState game_level_init(Vec2i terminal_size, const char* title) {
   };
 
   Pool* bullet_pool = new_object_pool(sizeof(bullet), 20);
-
   Enemy e = new_enemy((Vec2i){terminal_size.x / 2, 4}, 10);
-  return (GameLevelState){
-      .title = title,
-      .player = p,
-      .enemy = e,
-      .frame_count = 1,
-      .bullet_pool = bullet_pool,
-  };
+
+  level->title = title;
+  level->player = p;
+  level->enemy = e;
+  level->frame_count = 1;
+  level->bullet_pool = bullet_pool;
+  return level;
+}
+
+void RemoveGameLevel(GameLevelState* level) {
+  if (level == NULL) {
+    return;
+  }
+  if (level->bullet_pool != NULL) {
+    remove_object_pool(level->bullet_pool);
+  }
+
+  free(level);
 }

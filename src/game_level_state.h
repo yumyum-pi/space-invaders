@@ -22,6 +22,7 @@ typedef struct {
   const char* title;
 } GameLevelState;
 
-GameLevelState game_level_init(Vec2i terminal_size, const char* title);
+GameLevelState* NewGameLevel(Vec2i terminal_size, const char* title);
+void RemoveGameLevel(GameLevelState* level);
 
 #endif  // !GAME_LEVEL_STATE_H

@@ -246,7 +246,7 @@ void update_player(GameLevelState* level, const GameInput* in) {
 void game_update(GameState* gs, GameLevelState* level) {
   const GameInput* in = &(level->input);
   if (in->quit) {
-    gs->is_running = 0;
+    gs->mode = GAME_PAUSE;
     return;
   }
   update_player(level, in);

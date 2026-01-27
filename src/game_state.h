@@ -14,6 +14,9 @@ typedef enum {
 typedef struct {
   GameMode mode;
   Menu* MainMenu;
+  Menu* PauseMenu;
+  Menu* EndMenu;
+  GameLevelState* LevelState;
   Vec2i terminal_size;
   Vec2i bounds_min;
   Vec2i bounds_max;
@@ -22,7 +25,7 @@ typedef struct {
   long target_frame_ms;
 } GameState;
 
-GameState NewGameState(Vec2i terminal_siz);
+GameState* InitGameState(Vec2i terminal_siz);
 GameLevelState getLevel(GameState* gs, int level);
 
 #endif  // GAME_STATE_H
