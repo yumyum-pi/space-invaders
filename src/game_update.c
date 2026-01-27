@@ -140,10 +140,10 @@ void update_enemy(GameState* g, Enemy* e, int frame_count) {
   {
     float speed = e->speed;
     // TODO: the bound_offset_x should not be hard coded
-    int offset = 64;  // left and right extrems of ping pong positions
+    int offset = 32;  // left and right extrems of ping pong positions
     int x = ping_pong_ease_in_out(-offset, offset, speed, frame_count);
     e->position.x = e->target_position.x + x;
-    e->position.y++;
+    e->position.y += 1 / (frame_count % 48);
   }
 
   if (!is_Inbounds(e->position)) {

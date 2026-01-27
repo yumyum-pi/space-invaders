@@ -7,9 +7,9 @@ Enemy new_enemy(Vec2i position, int health) {
       .position = position,
       .gun = new_gun_default_enemy(),
       .target_position = position,
-      .velocity = {0, 0},
+      .velocity = {0, 2},
       .health = health,
       .is_active = true,
-      .speed = 0.1f,
+      .speed = 0.2f,
   };
 }
