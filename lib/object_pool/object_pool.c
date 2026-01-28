@@ -132,7 +132,9 @@ void object_pool_itr(Pool* p, Pool_func_itr* func, void* args) {
 
     if (obj->is_used) {
       assert(obj->payload_ptr != NULL);
-      func(obj->payload_ptr, args);
+      if (!func(obj->payload_ptr, args)) {
+        break;
+      }
     }
   }
   return;

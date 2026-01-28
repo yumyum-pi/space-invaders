@@ -8,6 +8,27 @@ static GameState gs = {
     .target_frame_ms = FRAME_MS,
 };
 
+void RemoveGameLevel(GameLevelState* level_state) {
+  if (level_state != NULL) {
+    return;
+  }
+
+  if (level_state->enemy_pool != NULL) {
+    remove_object_pool(level_state->enemy_pool);
+    level_state->enemy_pool = NULL;
+  }
+  if (level_state->bullet_pool != NULL) {
+    remove_object_pool(level_state->bullet_pool);
+    level_state->bullet_pool = NULL;
+  }
+  if (level_state->level != NULL) {
+    LevelRemove(level_state->level);
+    level_state->level = NULL;
+  }
+
+  free(level_state);
+}
+
 void resetMenus() {
   gs.MainMenu->hover = 0;
   gs.PauseMenu->hover = 0;

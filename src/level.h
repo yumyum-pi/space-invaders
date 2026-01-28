@@ -1,6 +1,7 @@
 #ifndef LEVEL_H
 #define LEVEL_H
 
+#include <sys/wait.h>
 #include <unistd.h>
 #include "utils/math.h"
 typedef enum { ENEMY } EntityType;
@@ -23,8 +24,11 @@ typedef struct {
   SpawnEvent* events;
   size_t length;
   size_t capacity;
+  size_t current_index;
 } Level;
 
 Level* Level1();
+SpawnEvent* LevelGetSpawnEvent(Level* level, int frame_count);
+void LevelRemove(Level* l);
 
 #endif  // !LEVEL_H

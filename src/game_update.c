@@ -1,11 +1,14 @@
 #include "./game_update.h"
 #include <assert.h>
+#include <stdio.h>
 #include "../lib/object_pool/object_pool.h"
 #include "bullet.h"
 #include "enemy.h"
 #include "game_level_state.h"
 #include "game_state.h"
+#include "gun.h"
 #include "input.h"
+#include "level.h"
 #include "player.h"
 #include "utils/math.h"
 
@@ -156,14 +159,14 @@ int ping_pong_ease_in_out(int min, int max, float speed, int frame_count) {
   return (int)(min + (eased_t * diff));
 }
 
-void update_enemy(GameLevelState* level, Enemy* e, int frame_count) {
+void update_enemy(GameLevelState* level, Enemy* e) {
   {
     float speed = e->speed;
     // TODO: the bound_offset_x should not be hard coded
     int offset = 32;  // left and right extrems of ping pong positions
-    int x = ping_pong_ease_in_out(-offset, offset, speed, frame_count);
+    int x = ping_pong_ease_in_out(-offset, offset, speed, level->frame_count);
     e->position.x = e->target_position.x + x;
-    e->position.y += 1 / (frame_count % 48);
+    e->position.y += 1 / (level->frame_count % 48);
   }
 
   if (!is_Inbounds(e->position)) {
@@ -182,7 +185,7 @@ typedef struct {
   Pool* pool;  // to return object to the pool
 } BulletUpdateContext;
 
-void update_bullet_itr_wrapper(void* payload, void* args) {
+bool update_bullet_itr_wrapper(void* payload, void* args) {
   bullet* b = (bullet*)payload;
   BulletUpdateContext* context = (BulletUpdateContext*)args;
   Vec2i* position = &(b->position);
@@ -193,39 +196,66 @@ void update_bullet_itr_wrapper(void* payload, void* args) {
     // return the bullet
     object_pool_return(context->pool, b);
   }
+  return true;
 };
 
 typedef struct {
   Player* player;
-  Enemy* enemy;       // to return object to the pool
+  Pool* enemy_pool;   // to return object to the pool
   Pool* bullet_pool;  // to return object to the pool
 } BulletCollisionContext;
 
+typedef struct {
+  bullet* b;
+  Pool* enemy_pool;
+  bool* hit;
+} bullet_enemy_context;
+
+bool bullet_collision_to_enemy_itr(void* payload, void* args) {
+  Enemy* e = (Enemy*)payload;
+  bullet_enemy_context* context = (bullet_enemy_context*)args;
+
+  if (is_eq_vec2i(context->b->position, e->position)) {
+    *context->hit = true;
+    e->is_active = false;
+    object_pool_return(context->enemy_pool, e);
+    return false;
+  }
+  return true;
+}
+
 // How to handle enemy from object pool
-void bullet_obj_pool_enemy_itr_wrapper(void* payload, void* args) {
+bool bullet_obj_pool_enemy_itr_wrapper(void* payload, void* args) {
   bullet* b = (bullet*)payload;
   BulletCollisionContext* context = (BulletCollisionContext*)args;
 
   // enemy bullet speed = -1;
-  // enmey bullet check of player collision
+  // enemy bullet check of player collision
   if (b->speed == -1 && is_eq_vec2i(b->position, context->player->position)) {
     context->player->health--;
     object_pool_return(context->bullet_pool, b);  // return obj
-    //player bullet check for enmey
-  } else if (b->speed == 1 &&
-             is_eq_vec2i(b->position, context->enemy->position)) {
-    context->enemy->is_active = false;
-    object_pool_return(context->bullet_pool, b);  // return obj
+    //player bullet check for enemy
+  } else if (b->speed == 1) {
+    bool hit = false;
+    bullet_enemy_context ctx = (bullet_enemy_context){
+        .b = b,
+        .enemy_pool = context->enemy_pool,
+        .hit = &hit,
+    };
+    object_pool_itr(context->enemy_pool, bullet_collision_to_enemy_itr, &ctx);
+    if (hit) {
+      object_pool_return(context->bullet_pool, b);  // return obj
+    }
   }
+  return true;
 }
 
 void update_collision(GameLevelState* level) {
   BulletCollisionContext collisionContext = {
       .bullet_pool = level->bullet_pool,
       .player = &(level->player),
-      .enemy = &(level->enemy),
+      .enemy_pool = level->enemy_pool,
   };
-
   object_pool_itr(level->bullet_pool, bullet_obj_pool_enemy_itr_wrapper,
                   &collisionContext);
 }
@@ -243,33 +273,68 @@ void update_player(GameLevelState* level, const GameInput* in) {
   }
 }
 
-void game_update(GameState* gs, GameLevelState* level) {
-  const GameInput* in = &(level->input);
+typedef struct {
+  GameLevelState* level;
+  Pool* pool;  // to return object to the pool
+} EnemyUpdateContext;
+
+bool update_enemy_itr_wrapper(void* payload, void* args) {
+  Enemy* e = (Enemy*)payload;
+  EnemyUpdateContext* context = (EnemyUpdateContext*)args;
+  update_enemy(context->level, e);
+  return true;
+};
+
+void game_update(GameState* gs, GameLevelState* level_state) {
+  const GameInput* in = &(level_state->input);
   if (in->quit) {
     gs->mode = GAME_PAUSE;
     return;
   }
-  update_player(level, in);
-  // only update the enemey when the enemy is is_active
-  {
-    Enemy* e = &level->enemy;
-    if (e->is_active) {
-      update_enemy(level, e, level->frame_count);
+
+  SpawnEvent* s;
+  while ((s = LevelGetSpawnEvent(level_state->level,
+                                 level_state->frame_count)) != NULL) {
+    // spawn
+    switch (s->entity) {
+      case ENEMY: {
+        EntityArgsEnemy args = s->args.enemyArgs;
+        Enemy* e = object_pool_borrow(level_state->enemy_pool);
+        e->is_active = true;
+        e->position = args.start_position;
+        e->target_position = args.start_position;
+        e->speed = 0.1f;  // Or from args if you add it
+        e->gun = new_gun_default_enemy();
+        break;
+      }
+      default:
+        printf("This should not be true");
+        assert(false);
+        return;
     }
   }
+  update_player(level_state, in);
+  // only update the enemey when the enemy is is_active
+
+  EnemyUpdateContext enemyUpdateContext = {
+      .level = level_state,
+      .pool = level_state->bullet_pool,
+  };
+  object_pool_itr(level_state->enemy_pool, update_enemy_itr_wrapper,
+                  &enemyUpdateContext);
+
   BulletUpdateContext bulletUpdateContext = {
       .terminal_size = gs->terminal_size,
-      .pool = level->bullet_pool,
+      .pool = level_state->bullet_pool,
   };
-
   // update the position of the bullets
-  object_pool_itr(level->bullet_pool, update_bullet_itr_wrapper,
+  object_pool_itr(level_state->bullet_pool, update_bullet_itr_wrapper,
                   &bulletUpdateContext);
 
   // check for collision
-  update_collision(level);
+  update_collision(level_state);
 
-  if (level->player.health <= 0) {
+  if (level_state->player.health <= 0) {
     // TODO: pass the score here
     gs->mode = GAME_END;
   }

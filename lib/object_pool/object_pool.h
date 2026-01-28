@@ -18,7 +18,7 @@ typedef struct {
 } Pool;
 
 // This is a pointer to a function that takes a payload and argument
-typedef void(Pool_func_itr)(void* playload, void* args);
+typedef bool(Pool_func_itr)(void* playload, void* args);
 
 Pool* new_object_pool(const size_t object_size, const size_t pool_size);
 void remove_object_pool(Pool* p);

@@ -7,6 +7,7 @@
 #include "./utils/math.h"
 #include "assert.h"
 #include "bullet.h"
+#include "enemy.h"
 #include "game_level_state.h"
 #include "input.h"
 #include "menu.h"
@@ -217,20 +218,27 @@ void render_ui(renderer* r, GameLevelState* gs) {
   render_gun(r, &(gs->player.gun));
 }
 
-void render_bullet(void* payload, void* args) {
+bool render_bullet(void* payload, void* args) {
   renderer* r = (renderer*)args;
   bullet* b = (bullet*)payload;
   // get position
   int index = position_to_index(r, b->position);
   r->buffer[index] = '|';
+  return true;
+}
+
+bool render_enemy_pool(void* payload, void* args) {
+  renderer* r = (renderer*)args;
+  Enemy* e = (Enemy*)payload;
+  render_enemy(r, e->position);
+  return true;
 }
 
 void render_level(renderer* r, GameLevelState* gs) {
   renderer_clear(r, ' ');
   render_player(r, gs->player.position);
-  if (gs->enemy.is_active) {
-    render_enemy(r, gs->enemy.position);
-  }
+
+  object_pool_itr(gs->enemy_pool, render_enemy_pool, r);
   object_pool_itr(gs->bullet_pool, render_bullet, r);
   render_ui(r, gs);
 

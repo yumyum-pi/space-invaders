@@ -26,6 +26,6 @@ typedef struct {
 } GameState;
 
 GameState* InitGameState(Vec2i terminal_siz);
-GameLevelState getLevel(GameState* gs, int level);
+GameLevelState getLevel(GameState* gs, int level_state);
 
 #endif  // GAME_STATE_H

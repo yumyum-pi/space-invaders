@@ -7,6 +7,7 @@
 #include "bullet.h"
 #include "enemy.h"
 #include "input.h"
+#include "level.h"
 #include "player.h"
 #include "utils/math.h"
 
@@ -17,7 +18,8 @@ typedef struct {
   GameInput input;
   Player player;
   int frame_count;
-  Enemy enemy;
+  Level* level;
+  Pool* enemy_pool;
   Pool* bullet_pool;
   const char* title;
 } GameLevelState;

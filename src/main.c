@@ -15,6 +15,7 @@ int main() {
 
   MenuInput menu_input;
   GameLevelState* level = NULL;
+  game_state->MainMenu->functions[0]();
   while (game_state->is_running) {
     frame_begin(game_state);
     switch (game_state->mode) {
