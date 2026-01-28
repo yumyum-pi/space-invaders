@@ -33,6 +33,11 @@ void GameMainMenu() {
   resetMenus();
 }
 
+void Restart() {
+  RemoveGameLevel(gs.LevelState);
+  NewGame();
+}
+
 GameState* InitGameState(Vec2i terminal_size) {
   Vec2i bounds_min = {
       .x = 16,
@@ -53,11 +58,15 @@ GameState* InitGameState(Vec2i terminal_size) {
   MenuSetFunction(pause_menu, "Resume", &GameResume);
   MenuSetFunction(pause_menu, "Main Menu", &GameMainMenu);
 
+  Menu* end_menu = NewMenu(3);
+  MenuSetFunction(end_menu, "Restart", &Restart);
+  MenuSetFunction(end_menu, "Main Menu", &GameMainMenu);
   // create game menu
   gs = (GameState){
       .mode = MAIN_MENU,
       .MainMenu = main_menu,
       .PauseMenu = pause_menu,
+      .EndMenu = end_menu,
       .is_running = true,
       .terminal_size = terminal_size,
       .target_frame_ms = FRAME_MS,

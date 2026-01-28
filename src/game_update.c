@@ -270,6 +270,7 @@ void game_update(GameState* gs, GameLevelState* level) {
   update_collision(level);
 
   if (level->player.health <= 0) {
-    gs->is_running = false;
+    // TODO: pass the score here
+    gs->mode = GAME_END;
   }
 }
