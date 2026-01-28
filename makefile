@@ -29,3 +29,7 @@ test: test_object_pool
 
 clean:
 	rm -rf ../build/*
+
+loc:
+	find . \( -name '*.c' -o -name '*.h' \) -print0 | xargs -0 wc -l | sort
+
