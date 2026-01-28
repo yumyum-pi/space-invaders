@@ -54,23 +54,23 @@ Level* Level1() {
       l, (SpawnEvent){
              .frame = 0,
              .entity = ENEMY,
-             .args = {.enemyArgs = {.start_position = {.x = 40, .y = 5}}}});
+             .args = {.enemyArgs = {.start_position = {.x = 40, .y = 0}}}});
   LevelSpawnEventAppend(
       l, (SpawnEvent){
              .frame = 0,
              .entity = ENEMY,
-             .args = {.enemyArgs = {.start_position = {.x = 90, .y = 5}}}});
+             .args = {.enemyArgs = {.start_position = {.x = -40, .y = 0}}}});
   LevelSpawnEventAppend(
       l, (SpawnEvent){
              .frame = 24 * 5,
              .entity = ENEMY,
-             .args = {.enemyArgs = {.start_position = {.x = 90, .y = 5}}}});
+             .args = {.enemyArgs = {.start_position = {.x = 90, .y = 0}}}});
 
   LevelSpawnEventAppend(
       l, (SpawnEvent){
              .frame = 24 * 6,
              .entity = ENEMY,
-             .args = {.enemyArgs = {.start_position = {.x = 190, .y = 5}}}});
+             .args = {.enemyArgs = {.start_position = {.x = 190, .y = 0}}}});
   return l;
 };
 

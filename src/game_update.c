@@ -21,6 +21,10 @@ static Vec2i player_bounding_box_vec[2] = {
     (Vec2i){0, 0},
     (Vec2i){0, 0},
 };
+static Vec2i enemy_bounding_box_vec[2] = {
+    (Vec2i){0, 0},
+    (Vec2i){0, 0},
+};
 
 void game_update_init(Vec2i terminal_size) {
   Vec2i t = terminal_size;
@@ -38,6 +42,16 @@ void game_update_init(Vec2i terminal_size) {
   player_bounding_box_vec[1] = (Vec2i){
       .x = terminal_size.x - 16,
       .y = terminal_size.y - 8,
+  };
+
+  enemy_bounding_box_vec[0] = (Vec2i){
+      .x = 16,
+      .y = 0,
+  };
+
+  enemy_bounding_box_vec[1] = (Vec2i){
+      .x = terminal_size.x - 16,
+      .y = terminal_size.y - 1,
   };
 }
 
@@ -166,7 +180,13 @@ void update_enemy(GameLevelState* level, Enemy* e) {
     int offset = 32;  // left and right extrems of ping pong positions
     int x = ping_pong_ease_in_out(-offset, offset, speed, level->frame_count);
     e->position.x = e->target_position.x + x;
-    e->position.y += 1 / (level->frame_count % 48);
+    e->position.y += 1 / (level->frame_count % 12);
+  }
+
+  if (!is_point_in_rect(e->position, enemy_bounding_box_vec[0],
+                        enemy_bounding_box_vec[1])) {
+    e->position = clamp_vec2i(e->position, enemy_bounding_box_vec[0],
+                              enemy_bounding_box_vec[1]);
   }
 
   if (!is_Inbounds(e->position)) {
@@ -285,6 +305,13 @@ bool update_enemy_itr_wrapper(void* payload, void* args) {
   return true;
 };
 
+Vec2i center_offset(Vec2i terminal_size, Vec2i offset) {
+  return (Vec2i){
+      .x = clamp(terminal_size.x / 2 + offset.x, 0, terminal_size.x),
+      .y = offset.y,
+  };
+}
+
 void game_update(GameState* gs, GameLevelState* level_state) {
   const GameInput* in = &(level_state->input);
   if (in->quit) {
@@ -301,8 +328,9 @@ void game_update(GameState* gs, GameLevelState* level_state) {
         EntityArgsEnemy args = s->args.enemyArgs;
         Enemy* e = object_pool_borrow(level_state->enemy_pool);
         e->is_active = true;
-        e->position = args.start_position;
-        e->target_position = args.start_position;
+        e->position = center_offset(gs->terminal_size, args.start_position);
+        e->target_position =
+            center_offset(gs->terminal_size, args.start_position);
         e->speed = 0.1f;  // Or from args if you add it
         e->gun = new_gun_default_enemy();
         break;

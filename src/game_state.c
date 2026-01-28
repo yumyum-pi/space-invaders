@@ -78,10 +78,12 @@ GameState* InitGameState(Vec2i terminal_size) {
   Menu* pause_menu = NewMenu(3);
   MenuSetFunction(pause_menu, "Resume", &GameResume);
   MenuSetFunction(pause_menu, "Main Menu", &GameMainMenu);
+  MenuSetFunction(pause_menu, "Quit", &QuitGame);
 
   Menu* end_menu = NewMenu(3);
   MenuSetFunction(end_menu, "Restart", &Restart);
   MenuSetFunction(end_menu, "Main Menu", &GameMainMenu);
+  MenuSetFunction(end_menu, "Quit", &QuitGame);
   // create game menu
   gs = (GameState){
       .mode = MAIN_MENU,
@@ -97,5 +99,3 @@ GameState* InitGameState(Vec2i terminal_size) {
 
   return &gs;
 };
-
-// GameLevelState getLevel(int level);
