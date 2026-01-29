@@ -26,7 +26,7 @@ GameLevelState* NewGameLevel(Vec2i terminal_size, const char* title) {
       .health = 1,
       .position = create_player_start_pos(terminal_size),
       .velocity = zero_vec(),
-      .gun = new_gun_default_player(),
+      .gun = GetGun(GUN_LASER),
   };
 
   Pool* bullet_pool = new_object_pool(sizeof(bullet), 30);

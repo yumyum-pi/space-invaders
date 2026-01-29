@@ -11,6 +11,15 @@
 #include "level.h"
 #include "player.h"
 #include "utils/math.h"
+const Vec2i ENEMY_BULLET_DIRECTION = {
+    .x = 0,
+    .y = -1,
+};
+
+const Vec2i PLAYER_BULLET_DIRECTION = {
+    .x = 0,
+    .y = 1,
+};
 
 static Vec2i bounding_box_vec[2] = {
     (Vec2i){0, 0},
@@ -179,8 +188,9 @@ void update_enemy(GameLevelState* level, Enemy* e) {
     // TODO: the bound_offset_x should not be hard coded
     int offset = 32;  // left and right extrems of ping pong positions
     int x = ping_pong_ease_in_out(-offset, offset, speed, level->frame_count);
-    e->position.x = e->target_position.x + x;
-    e->position.y += 1 / (level->frame_count % 12);
+    e->position.x = e->ancher_position.x + x;
+    e->ancher_position.y += 1 / (level->frame_count % 12);
+    e->position.y = e->ancher_position.y;
   }
 
   if (!is_point_in_rect(e->position, enemy_bounding_box_vec[0],
@@ -196,7 +206,7 @@ void update_enemy(GameLevelState* level, Enemy* e) {
   Gun* gun = &(e->gun);
 
   if (gun_fire(gun, level->frame_count, true)) {
-    fire_bullet(level, gun->direction, e->position);
+    fire_bullet(level, ENEMY_BULLET_DIRECTION, e->position);
   }
 }
 //
@@ -289,7 +299,7 @@ void update_player(GameLevelState* level, const GameInput* in) {
   update_player_position(pos, v);
   Gun* gun = &(p->gun);
   if (gun_fire(gun, level->frame_count, fire)) {
-    fire_bullet(level, gun->direction, *pos);
+    fire_bullet(level, PLAYER_BULLET_DIRECTION, *pos);
   }
 }
 
@@ -327,12 +337,8 @@ void game_update(GameState* gs, GameLevelState* level_state) {
       case ENEMY: {
         EntityArgsEnemy args = s->args.enemyArgs;
         Enemy* e = object_pool_borrow(level_state->enemy_pool);
-        e->is_active = true;
-        e->position = center_offset(gs->terminal_size, args.start_position);
-        e->target_position =
-            center_offset(gs->terminal_size, args.start_position);
-        e->speed = 0.1f;  // Or from args if you add it
-        e->gun = new_gun_default_enemy();
+        SetEnemy(e, args.type,
+                 center_offset(gs->terminal_size, args.start_position));
         break;
       }
       default:

@@ -11,6 +11,4 @@ typedef struct {
   Gun gun;
 } Player;
 
-Player new_player(void);
-
 #endif  // !PLAYER_H

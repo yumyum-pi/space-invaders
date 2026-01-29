@@ -2,21 +2,35 @@
 #include <assert.h>
 #include "utils/math.h"
 
-const Vec2i PLAYER_BULLET_DIRECTION = {
-    .x = 0,
-    .y = 1,
+static const Gun GUN_DEFS[GUN_COUNT] = {
+    [GUN_LASER] =
+        {
+            .fire_rate = 10,
+            .magazine_size = 20,
+            .reload_rate = 60,
+        },
+    [GUN_PLASMA] =
+        {
+            .fire_rate = 25,
+            .magazine_size = 5,
+            .reload_rate = 90,
+        },
+    [GUN_GATLING] =
+        {
+            .fire_rate = 3,
+            .magazine_size = 100,
+            .reload_rate = 120,
+        },
+    [GUN_BURST] =
+        {
+            .fire_rate = 2,
+            .magazine_size = 6,
+            .reload_rate = 45,
+        },
 };
 
-const Vec2i ENEMY_BULLET_DIRECTION = {
-    .x = 0,
-    .y = -1,
-};
-
-Gun new_gun(int fire_rate, int reload_rate, int magazine_size,
-            Vec2i direction) {
+Gun new_gun(int fire_rate, int reload_rate, int magazine_size) {
   Gun g = {
-      .direction = direction,
-      .bullet_type = 0,
       .fire_rate = fire_rate,
       .reload_rate = reload_rate,
       .last_fired_frame = -fire_rate,
@@ -28,15 +42,30 @@ Gun new_gun(int fire_rate, int reload_rate, int magazine_size,
 
 // TODO: remove the following number with FPS
 Gun new_gun_default_player(void) {
-  return new_gun(1 * 24, 5 * 24, 5, PLAYER_BULLET_DIRECTION);
+  return new_gun(1 * 24, 5 * 24, 5);
 }
 
 Gun new_gun_default_enemy(void) {
-  return new_gun(2 * 24, 5 * 24, 15, ENEMY_BULLET_DIRECTION);
+  return new_gun(2 * 24, 5 * 24, 15);
 }
 
-// set reload false
-// fill the remaining_rounds
+void SetGun(Gun* g, GunType type) {
+  type = clamp(type, 0, GUN_COUNT);
+  Gun def = GUN_DEFS[type];
+
+  g->fire_rate = def.fire_rate;
+  g->magazine_size = def.magazine_size;
+  g->reload_rate = def.reload_rate;
+  g->remaining_rounds = def.magazine_size;
+  g->last_fired_frame = 0;
+  g->is_reloading = false;
+}
+
+Gun GetGun(GunType type) {
+  type = clamp(type, 0, GUN_COUNT);
+  return GUN_DEFS[type];
+}
+
 void gun_reload(Gun* g) {
   g->is_reloading = false;
   g->remaining_rounds = g->magazine_size;

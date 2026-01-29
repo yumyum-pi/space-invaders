@@ -1,6 +1,7 @@
 #include "./level.h"
 #include <assert.h>
 #include <stdlib.h>
+#include "enemy.h"
 
 Level* NewLevel(size_t capcity) {
   assert(capcity != 0);
@@ -54,23 +55,40 @@ Level* Level1() {
       l, (SpawnEvent){
              .frame = 0,
              .entity = ENEMY,
-             .args = {.enemyArgs = {.start_position = {.x = 40, .y = 0}}}});
+             .args = {.enemyArgs = {.type = ENEMY_LASER,
+                                    .start_position = {.x = 48, .y = 0}}}});
   LevelSpawnEventAppend(
       l, (SpawnEvent){
              .frame = 0,
              .entity = ENEMY,
-             .args = {.enemyArgs = {.start_position = {.x = -40, .y = 0}}}});
+             .args = {.enemyArgs = {.type = ENEMY_LASER,
+                                    .start_position = {.x = 32, .y = 0}}}});
   LevelSpawnEventAppend(
       l, (SpawnEvent){
-             .frame = 24 * 5,
+             .frame = 0,
              .entity = ENEMY,
-             .args = {.enemyArgs = {.start_position = {.x = 90, .y = 0}}}});
+             .args = {.enemyArgs = {.type = ENEMY_LASER,
+                                    .start_position = {.x = 16, .y = 0}}}});
 
   LevelSpawnEventAppend(
       l, (SpawnEvent){
-             .frame = 24 * 6,
+             .frame = 24 * 2,
              .entity = ENEMY,
-             .args = {.enemyArgs = {.start_position = {.x = 190, .y = 0}}}});
+             .args = {.enemyArgs = {.type = ENEMY_PLASMA,
+                                    .start_position = {.x = 48, .y = 0}}}});
+  LevelSpawnEventAppend(
+      l, (SpawnEvent){
+             .frame = 24 * 2,
+             .entity = ENEMY,
+             .args = {.enemyArgs = {.type = ENEMY_GATLING,
+                                    .start_position = {.x = 32, .y = 0}}}});
+  LevelSpawnEventAppend(
+      l, (SpawnEvent){
+             .frame = 24 * 2,
+             .entity = ENEMY,
+             .args = {.enemyArgs = {.type = ENEMY_BURST,
+                                    .start_position = {.x = 16, .y = 0}}}});
+
   return l;
 };
 

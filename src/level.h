@@ -3,11 +3,13 @@
 
 #include <sys/wait.h>
 #include <unistd.h>
+#include "enemy.h"
 #include "utils/math.h"
 typedef enum { ENEMY } EntityType;
 
 typedef struct {
   Vec2i start_position;
+  EnemyType type;
 } EntityArgsEnemy;
 
 typedef union {
