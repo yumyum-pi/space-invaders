@@ -300,7 +300,6 @@ void update_player(GameLevelState* level, const GameInput* in) {
   update_player_position(pos, v);
   Gun* gun = &(p->gun);
   if (gun_fire(gun, level->frame_count, fire)) {
-    level->title = "yello";
     fire_bullet(level, PLAYER_BULLET_DIRECTION, *pos);
   }
 }
