@@ -63,7 +63,15 @@ void SetGun(Gun* g, GunType type) {
 
 Gun GetGun(GunType type) {
   type = clamp(type, 0, GUN_COUNT);
-  return GUN_DEFS[type];
+  Gun def = GUN_DEFS[type];
+  return (Gun){
+      .fire_rate = def.fire_rate,
+      .magazine_size = def.magazine_size,
+      .reload_rate = def.reload_rate,
+      .remaining_rounds = def.magazine_size,
+      .last_fired_frame = 0,
+      .is_reloading = false,
+  };
 }
 
 void gun_reload(Gun* g) {

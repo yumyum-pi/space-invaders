@@ -72,6 +72,7 @@ void fire_bullet(GameLevelState* level, Vec2i direction, Vec2i pos) {
   // borrow bullet
   bullet* b = object_pool_borrow(level->bullet_pool);
   // check if bullet is not NULL
+  assert(b != NULL);
   if (b == NULL) {
     return;
   }
@@ -299,6 +300,7 @@ void update_player(GameLevelState* level, const GameInput* in) {
   update_player_position(pos, v);
   Gun* gun = &(p->gun);
   if (gun_fire(gun, level->frame_count, fire)) {
+    level->title = "yello";
     fire_bullet(level, PLAYER_BULLET_DIRECTION, *pos);
   }
 }
@@ -337,6 +339,7 @@ void game_update(GameState* gs, GameLevelState* level_state) {
       case ENEMY: {
         EntityArgsEnemy args = s->args.enemyArgs;
         Enemy* e = object_pool_borrow(level_state->enemy_pool);
+        assert(e != NULL);
         SetEnemy(e, args.type,
                  center_offset(gs->terminal_size, args.start_position));
         break;
@@ -348,7 +351,6 @@ void game_update(GameState* gs, GameLevelState* level_state) {
     }
   }
   update_player(level_state, in);
-  // only update the enemey when the enemy is is_active
 
   EnemyUpdateContext enemyUpdateContext = {
       .level = level_state,

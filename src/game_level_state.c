@@ -15,6 +15,9 @@ Vec2i create_player_start_pos(Vec2i terminal_size) {
   };
 }
 
+#define BULLET_POOL_SIZE 80
+#define ENEMY_POOL_SIZE 10
+
 // TODO: take a struct that defines the no. of emenies
 GameLevelState* NewGameLevel(Vec2i terminal_size, const char* title) {
   GameLevelState* level_state = malloc(sizeof(GameLevelState));
@@ -29,9 +32,9 @@ GameLevelState* NewGameLevel(Vec2i terminal_size, const char* title) {
       .gun = GetGun(GUN_LASER),
   };
 
-  Pool* bullet_pool = new_object_pool(sizeof(bullet), 30);
+  Pool* bullet_pool = new_object_pool(sizeof(bullet), BULLET_POOL_SIZE);
   assert(bullet_pool != NULL);
-  Pool* enemy_pool = new_object_pool(sizeof(Enemy), 10);
+  Pool* enemy_pool = new_object_pool(sizeof(Enemy), ENEMY_POOL_SIZE);
   assert(enemy_pool != NULL);
 
   // Enemy e = new_enemy((Vec2i){terminal_size.x / 2, 4}, 10);
