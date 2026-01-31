@@ -15,6 +15,12 @@
 
 #define BUFFER_SIZE 128
 char buffer[BUFFER_SIZE];
+#define PlayerBufferSize 7
+const int PlayerBufferSizeHalf = PlayerBufferSize / 2;
+#define EnemyBufferSize 7
+const int EnemyBufferSizeHalf = EnemyBufferSize / 2;
+const char player[PlayerBufferSize] = "/=|^|=\\";
+const char enemy[EnemyBufferSize] = "\\\\-v-//";
 
 // TODO: not sure if i need to call endable raw mode from there
 renderer renderer_init() {
@@ -64,13 +70,25 @@ int position_to_index(renderer* r, Vec2i v) {
 }
 //
 void render_player(renderer* r, Vec2i p) {
-  int index = position_to_index(r, p);
-  r->buffer[index] = 'A';
+  int offset = position_to_index(r, p);
+  assert(offset + PlayerBufferSizeHalf < r->buffer_size);
+  assert(offset - PlayerBufferSizeHalf > 0);
+  offset -= PlayerBufferSizeHalf;
+  for (int i = 0; i < PlayerBufferSize; i++) {
+    // Simple bounds check to prevent crashing if player is off-screen
+    r->buffer[offset + i] = player[i];
+  }
 }
 
 void render_enemy(renderer* r, Vec2i p) {
-  int index = position_to_index(r, p);
-  r->buffer[index] = 'V';
+  int offset = position_to_index(r, p);
+  assert(offset + EnemyBufferSizeHalf < r->buffer_size);
+  assert(offset - EnemyBufferSizeHalf > 0);
+  offset -= EnemyBufferSizeHalf;
+  for (int i = 0; i < EnemyBufferSize; i++) {
+    // Simple bounds check to prevent crashing if player is off-screen
+    r->buffer[offset + i] = enemy[i];
+  }
 }
 //
 
