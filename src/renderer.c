@@ -11,14 +11,12 @@
 #include "input.h"
 #include "menu.h"
 #include "player.h"
+#include "utils/math/ivec2.h"
 
 #define BUFFER_SIZE 128
 char buffer[BUFFER_SIZE];
-#define PlayerBufferSize 7
-const int PlayerBufferSizeHalf = PlayerBufferSize / 2;
 #define EnemyBufferSize 7
 const int EnemyBufferSizeHalf = EnemyBufferSize / 2;
-const char player[PlayerBufferSize] = "/=|^|=\\";
 const char enemy[EnemyBufferSize] = "\\\\-v-//";
 
 // TODO: not sure if i need to call endable raw mode from there
@@ -67,16 +65,23 @@ int position_to_index(renderer* r, IVec2 v) {
 
   return index;
 }
-//
-void render_player(renderer* r, IVec2 p) {
-  int offset = position_to_index(r, p);
-  assert(offset + PlayerBufferSizeHalf < r->buffer_size);
-  assert(offset - PlayerBufferSizeHalf > 0);
-  offset -= PlayerBufferSizeHalf;
-  for (int i = 0; i < PlayerBufferSize; i++) {
+
+void render(renderer* r, Render ren, IVec2 position) {
+  int offset = position_to_index(r, position);
+  int half = ren.buffer_size / 2;
+  assert(offset + (half) < r->buffer_size);
+  assert(offset - (half) > 0);
+
+  offset -= half;
+  for (int i = 0; i < ren.buffer_size; i++) {
     // Simple bounds check to prevent crashing if player is off-screen
-    r->buffer[offset + i] = player[i];
+    r->buffer[offset + i] = ren.buffer[i];
   }
+}
+
+//
+void render_player(renderer* r, Player* p) {
+  render(r, p->render, p->position);
 }
 
 void render_enemy(renderer* r, IVec2 p) {
@@ -253,7 +258,7 @@ bool render_enemy_pool(void* payload, void* args) {
 
 void render_level(renderer* r, GameLevelState* gs) {
   renderer_clear(r, ' ');
-  render_player(r, gs->player->position);
+  render_player(r, gs->player);
 
   object_pool_itr(gs->enemy_pool, render_enemy_pool, r);
   object_pool_itr(gs->bullet_pool, render_bullet, r);

@@ -24,7 +24,7 @@ GameLevelState* GameLevelNew(IVec2 terminal_size, const char* title) {
     return NULL;
   }
   Player* p =
-      PlayerNew(create_player_start_pos(terminal_size), "1234567", GUN_LASER);
+      PlayerNew(create_player_start_pos(terminal_size), "/=|^|=\\", GUN_LASER);
 
   Pool* bullet_pool = new_object_pool(sizeof(bullet), BULLET_POOL_SIZE);
   assert(bullet_pool != NULL);
