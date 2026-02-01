@@ -10,6 +10,7 @@
 #include "input.h"
 #include "level.h"
 #include "player.h"
+#include "utils/math/irect.h"
 
 const IVec2 ENEMY_BULLET_DIRECTION = {
     .x = 0,
@@ -251,7 +252,10 @@ bool bullet_obj_pool_enemy_itr_wrapper(void* payload, void* args) {
 
   // enemy bullet speed = -1;
   // enemy bullet check of player collision
-  if (b->speed == -1 && IVec2Equal(b->position, context->player->position)) {
+  if (b->speed == -1 &&
+      IRectColideIVec2(
+          IRectFromCenter(context->player->position, context->player->rectSize),
+          b->position)) {
     context->player->health--;
     object_pool_return(context->bullet_pool, b);  // return obj
     //player bullet check for enemy
