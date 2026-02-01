@@ -22,9 +22,8 @@ const IVec2 PLAYER_BULLET_DIRECTION = {
 };
 
 static IRect WorldRect;
-
-static IRect player_bounding_box_vec;
-static IRect enemy_bounding_box_vec;
+static IRect PlayerBoundingIRect;
+static IRect EnemyBoundingIRect;
 
 void game_update_init(IVec2 terminal_size) {
   IVec2 t = terminal_size;
@@ -35,22 +34,22 @@ void game_update_init(IVec2 terminal_size) {
   assert(t.y > 0);
   WorldRect.max = t;
 
-  player_bounding_box_vec.min = (IVec2){
+  PlayerBoundingIRect.min = (IVec2){
       .x = 16,
       .y = terminal_size.y - 32,
   };
 
-  player_bounding_box_vec.max = (IVec2){
+  PlayerBoundingIRect.max = (IVec2){
       .x = terminal_size.x - 16,
       .y = terminal_size.y - 8,
   };
 
-  enemy_bounding_box_vec.min = (IVec2){
+  EnemyBoundingIRect.min = (IVec2){
       .x = 16,
       .y = 0,
   };
 
-  enemy_bounding_box_vec.max = (IVec2){
+  EnemyBoundingIRect.max = (IVec2){
       .x = terminal_size.x - 16,
       .y = terminal_size.y - 1,
   };
@@ -111,9 +110,9 @@ void update_player_position(IVec2* position, IVec2* velocity) {
   position->x += velocity->x;
   position->y += velocity->y;
   // clamp
-  if (!IRectColideIVec2(player_bounding_box_vec, *position)) {
-    *position = IVec2Clamp(*position, player_bounding_box_vec.min,
-                           player_bounding_box_vec.max);
+  if (!IRectColideIVec2(PlayerBoundingIRect, *position)) {
+    *position =
+        IVec2Clamp(*position, PlayerBoundingIRect.min, PlayerBoundingIRect.max);
     *velocity = IVec2Zero();
   }
 }
@@ -185,9 +184,9 @@ void update_enemy(GameLevelState* level, Enemy* e) {
     e->position.y = e->ancher_position.y;
   }
 
-  if (!IRectColideIVec2(enemy_bounding_box_vec, e->position)) {
-    e->position = IVec2Clamp(e->position, enemy_bounding_box_vec.min,
-                             enemy_bounding_box_vec.max);
+  if (!IRectColideIVec2(EnemyBoundingIRect, e->position)) {
+    e->position =
+        IVec2Clamp(e->position, EnemyBoundingIRect.min, EnemyBoundingIRect.max);
   }
 
   if (!IsInWord(e->position)) {
