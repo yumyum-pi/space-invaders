@@ -35,7 +35,7 @@ void resetMenus() {
   // gs.QuitGame->hover = 0;
 }
 void NewGame() {
-  gs.LevelState = NewGameLevel(gs.terminal_size, "Space Invaders");
+  gs.LevelState = GameLevelNew(gs.terminal_size, "Space Invaders");
   gs.mode = GAME_PLAY;
   resetMenus();
 }

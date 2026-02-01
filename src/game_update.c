@@ -273,7 +273,7 @@ bool bullet_obj_pool_enemy_itr_wrapper(void* payload, void* args) {
 void update_collision(GameLevelState* level) {
   BulletCollisionContext collisionContext = {
       .bullet_pool = level->bullet_pool,
-      .player = &(level->player),
+      .player = level->player,
       .enemy_pool = level->enemy_pool,
   };
   object_pool_itr(level->bullet_pool, bullet_obj_pool_enemy_itr_wrapper,
@@ -282,7 +282,7 @@ void update_collision(GameLevelState* level) {
 
 void update_player(GameLevelState* level, const GameInput* in) {
   bool fire = in->fire;
-  Player* p = &level->player;
+  Player* p = level->player;
   IVec2* v = &p->velocity;
   IVec2* pos = &p->position;
   update_player_velocity(in, v);
@@ -358,7 +358,7 @@ void game_update(GameState* gs, GameLevelState* level_state) {
   // check for collision
   update_collision(level_state);
 
-  if (level_state->player.health <= 0) {
+  if (level_state->player->health <= 0) {
     // TODO: pass the score here
     gs->mode = GAME_END;
   }

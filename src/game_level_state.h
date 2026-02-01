@@ -16,7 +16,7 @@
 
 typedef struct {
   GameInput input;
-  Player player;
+  Player* player;
   int frame_count;
   Level* level;
   Pool* enemy_pool;
@@ -24,7 +24,7 @@ typedef struct {
   const char* title;
 } GameLevelState;
 
-GameLevelState* NewGameLevel(IVec2 terminal_size, const char* title);
-void RemoveGameLevel(GameLevelState* level);
+GameLevelState* GameLevelNew(IVec2 terminal_size, const char* title);
+void GameLevelFree(GameLevelState* level);
 
 #endif  // !GAME_LEVEL_STATE_H

@@ -226,13 +226,13 @@ void render_ui(renderer* r, GameLevelState* gs) {
   render_window_size(r);
 
   // show player position
-  render_player_pos(r, &(gs->player));
+  render_player_pos(r, gs->player);
 
   // show inputs on screen
   render_input(r, gs->input);
 
   // show gun
-  render_gun(r, &(gs->player.gun));
+  render_gun(r, &(gs->player->gun));
 }
 
 bool render_bullet(void* payload, void* args) {
@@ -253,7 +253,7 @@ bool render_enemy_pool(void* payload, void* args) {
 
 void render_level(renderer* r, GameLevelState* gs) {
   renderer_clear(r, ' ');
-  render_player(r, gs->player.position);
+  render_player(r, gs->player->position);
 
   object_pool_itr(gs->enemy_pool, render_enemy_pool, r);
   object_pool_itr(gs->bullet_pool, render_bullet, r);
