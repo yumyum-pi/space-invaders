@@ -6,7 +6,7 @@
 #include "menu.h"
 
 typedef struct {
-  Vec2i terminal_size;
+  IVec2 terminal_size;
   int stride;
   int buffer_size;
   char* buffer;

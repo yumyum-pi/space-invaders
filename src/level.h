@@ -8,7 +8,7 @@
 typedef enum { ENEMY } EntityType;
 
 typedef struct {
-  Vec2i start_position;
+  IVec2 start_position;
   EnemyType type;
 } EntityArgsEnemy;
 

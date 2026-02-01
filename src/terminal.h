@@ -13,7 +13,7 @@
 extern struct termios og_termios;
 
 // Window Management
-Vec2i t_get_terminal_size(void);
+IVec2 t_get_terminal_size(void);
 
 // Screen Buffer Management
 void t_enter_alt_screen(void);

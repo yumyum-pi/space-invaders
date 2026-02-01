@@ -10,65 +10,57 @@
 #include "input.h"
 #include "level.h"
 #include "player.h"
-#include "utils/math.h"
-const Vec2i ENEMY_BULLET_DIRECTION = {
+
+const IVec2 ENEMY_BULLET_DIRECTION = {
     .x = 0,
     .y = -1,
 };
 
-const Vec2i PLAYER_BULLET_DIRECTION = {
+const IVec2 PLAYER_BULLET_DIRECTION = {
     .x = 0,
     .y = 1,
 };
 
-static Vec2i bounding_box_vec[2] = {
-    (Vec2i){0, 0},
-    (Vec2i){0, 0},
-};
+static IRect WorldRect;
 
-static Vec2i player_bounding_box_vec[2] = {
-    (Vec2i){0, 0},
-    (Vec2i){0, 0},
-};
-static Vec2i enemy_bounding_box_vec[2] = {
-    (Vec2i){0, 0},
-    (Vec2i){0, 0},
-};
+static IRect player_bounding_box_vec;
+static IRect enemy_bounding_box_vec;
 
-void game_update_init(Vec2i terminal_size) {
-  Vec2i t = terminal_size;
+void game_update_init(IVec2 terminal_size) {
+  IVec2 t = terminal_size;
+  WorldRect = IRectZero();
   t.x--;
   t.y--;
   assert(t.x > 0);
   assert(t.y > 0);
-  bounding_box_vec[1] = t;
+  WorldRect.max = t;
 
-  player_bounding_box_vec[0] = (Vec2i){
+  player_bounding_box_vec.min = (IVec2){
       .x = 16,
       .y = terminal_size.y - 32,
   };
 
-  player_bounding_box_vec[1] = (Vec2i){
+  player_bounding_box_vec.max = (IVec2){
       .x = terminal_size.x - 16,
       .y = terminal_size.y - 8,
   };
 
-  enemy_bounding_box_vec[0] = (Vec2i){
+  enemy_bounding_box_vec.min = (IVec2){
       .x = 16,
       .y = 0,
   };
 
-  enemy_bounding_box_vec[1] = (Vec2i){
+  enemy_bounding_box_vec.max = (IVec2){
       .x = terminal_size.x - 16,
       .y = terminal_size.y - 1,
   };
 }
 
-bool is_Inbounds(Vec2i position) {
-  return is_point_in_rect(position, bounding_box_vec[0], bounding_box_vec[1]);
+bool IsInWord(IVec2 position) {
+  return IRectColideIVec2(WorldRect, position);
 }
 
-void fire_bullet(GameLevelState* level, Vec2i direction, Vec2i pos) {
+void fire_bullet(GameLevelState* level, IVec2 direction, IVec2 pos) {
   // borrow bullet
   bullet* b = object_pool_borrow(level->bullet_pool);
   // check if bullet is not NULL
@@ -81,21 +73,21 @@ void fire_bullet(GameLevelState* level, Vec2i direction, Vec2i pos) {
   b->speed = direction.y;
 };
 
-void update_player_velocity(const GameInput* in, Vec2i* v) {
+void update_player_velocity(const GameInput* in, IVec2* v) {
   {
-    const Vec2i accleration = {
+    const IVec2 accleration = {
         .x = 1,
         .y = 1,
     };
     if (in->ay == 0) {
-      v->y = move_to(v->y, 0, 1);
+      v->y = IMoveTowards(v->y, 0, 1);
     } else if (in->ay > 0) {
       v->y -= accleration.y;
     } else if (in->ay < 0) {
       v->y += accleration.y;
     }
     if (in->ax == 0) {
-      v->x = move_to(v->x, 0, 1);
+      v->x = IMoveTowards(v->x, 0, 1);
     } else if (in->ax < 0) {
       v->x -= accleration.x;
     } else if (in->ax > 0) {
@@ -104,26 +96,25 @@ void update_player_velocity(const GameInput* in, Vec2i* v) {
   }
 
   {
-    const Vec2i max_velocity = {
+    const IVec2 max_velocity = {
         .x = 2,
         .y = 2,
     };
     // clamp the velocity
-    v->x = clamp(v->x, -max_velocity.x, max_velocity.x);
-    v->y = clamp(v->y, -max_velocity.y, max_velocity.y);
+    v->x = IClamp(v->x, -max_velocity.x, max_velocity.x);
+    v->y = IClamp(v->y, -max_velocity.y, max_velocity.y);
   }
   return;
 }
 
-void update_player_position(Vec2i* position, Vec2i* velocity) {
+void update_player_position(IVec2* position, IVec2* velocity) {
   position->x += velocity->x;
   position->y += velocity->y;
   // clamp
-  if (!is_point_in_rect(*position, player_bounding_box_vec[0],
-                        player_bounding_box_vec[1])) {
-    *position = clamp_vec2i(*position, player_bounding_box_vec[0],
-                            player_bounding_box_vec[1]);
-    *velocity = zero_vec();
+  if (!IRectColideIVec2(player_bounding_box_vec, *position)) {
+    *position = IVec2Clamp(*position, player_bounding_box_vec.min,
+                           player_bounding_box_vec.max);
+    *velocity = IVec2Zero();
   }
 }
 static long timespec_diff_ms(const struct timespec* a,
@@ -194,13 +185,12 @@ void update_enemy(GameLevelState* level, Enemy* e) {
     e->position.y = e->ancher_position.y;
   }
 
-  if (!is_point_in_rect(e->position, enemy_bounding_box_vec[0],
-                        enemy_bounding_box_vec[1])) {
-    e->position = clamp_vec2i(e->position, enemy_bounding_box_vec[0],
-                              enemy_bounding_box_vec[1]);
+  if (!IRectColideIVec2(enemy_bounding_box_vec, e->position)) {
+    e->position = IVec2Clamp(e->position, enemy_bounding_box_vec.min,
+                             enemy_bounding_box_vec.max);
   }
 
-  if (!is_Inbounds(e->position)) {
+  if (!IsInWord(e->position)) {
     e->is_active = false;
   }
 
@@ -212,18 +202,18 @@ void update_enemy(GameLevelState* level, Enemy* e) {
 }
 //
 typedef struct {
-  Vec2i terminal_size;
+  IVec2 terminal_size;
   Pool* pool;  // to return object to the pool
 } BulletUpdateContext;
 
 bool update_bullet_itr_wrapper(void* payload, void* args) {
   bullet* b = (bullet*)payload;
   BulletUpdateContext* context = (BulletUpdateContext*)args;
-  Vec2i* position = &(b->position);
+  IVec2* position = &(b->position);
   position->y -= b->speed;
 
-  if (!is_Inbounds(*position)) {
-    *position = zero_vec();
+  if (!IsInWord(*position)) {
+    *position = IVec2Zero();
     // return the bullet
     object_pool_return(context->pool, b);
   }
@@ -246,7 +236,7 @@ bool bullet_collision_to_enemy_itr(void* payload, void* args) {
   Enemy* e = (Enemy*)payload;
   bullet_enemy_context* context = (bullet_enemy_context*)args;
 
-  if (is_eq_vec2i(context->b->position, e->position)) {
+  if (IVec2Equal(context->b->position, e->position)) {
     *context->hit = true;
     e->is_active = false;
     object_pool_return(context->enemy_pool, e);
@@ -262,7 +252,7 @@ bool bullet_obj_pool_enemy_itr_wrapper(void* payload, void* args) {
 
   // enemy bullet speed = -1;
   // enemy bullet check of player collision
-  if (b->speed == -1 && is_eq_vec2i(b->position, context->player->position)) {
+  if (b->speed == -1 && IVec2Equal(b->position, context->player->position)) {
     context->player->health--;
     object_pool_return(context->bullet_pool, b);  // return obj
     //player bullet check for enemy
@@ -294,8 +284,8 @@ void update_collision(GameLevelState* level) {
 void update_player(GameLevelState* level, const GameInput* in) {
   bool fire = in->fire;
   Player* p = &level->player;
-  Vec2i* v = &p->velocity;
-  Vec2i* pos = &p->position;
+  IVec2* v = &p->velocity;
+  IVec2* pos = &p->position;
   update_player_velocity(in, v);
   update_player_position(pos, v);
   Gun* gun = &(p->gun);
@@ -316,9 +306,9 @@ bool update_enemy_itr_wrapper(void* payload, void* args) {
   return true;
 };
 
-Vec2i center_offset(Vec2i terminal_size, Vec2i offset) {
-  return (Vec2i){
-      .x = clamp(terminal_size.x / 2 + offset.x, 0, terminal_size.x),
+IVec2 center_offset(IVec2 terminal_size, IVec2 offset) {
+  return (IVec2){
+      .x = IClamp(terminal_size.x / 2 + offset.x, 0, terminal_size.x),
       .y = offset.y,
   };
 }

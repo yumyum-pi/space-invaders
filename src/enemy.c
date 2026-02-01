@@ -1,6 +1,5 @@
 #include "./enemy.h"
 #include "gun.h"
-#include "utils/math.h"
 
 typedef struct {
   float speed;
@@ -30,8 +29,8 @@ static const EnemyDef ENEMY_DEFS[ENEMY_COUNT] = {
         },
 };
 
-void SetEnemy(Enemy* e, EnemyType type, Vec2i ancher_position) {
-  type = clamp(type, 0, ENEMY_COUNT);
+void SetEnemy(Enemy* e, EnemyType type, IVec2 ancher_position) {
+  type = IClamp(type, 0, ENEMY_COUNT);
   EnemyDef def = ENEMY_DEFS[type];
   e->type = type;
   e->position = ancher_position;

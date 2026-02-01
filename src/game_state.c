@@ -59,13 +59,13 @@ void Restart() {
   NewGame();
 }
 
-GameState* InitGameState(Vec2i terminal_size) {
-  Vec2i bounds_min = {
+GameState* InitGameState(IVec2 terminal_size) {
+  IVec2 bounds_min = {
       .x = 16,
       .y = terminal_size.y - 32,
   };
 
-  Vec2i bounds_max = {
+  IVec2 bounds_max = {
       .x = terminal_size.x - 16,
       .y = terminal_size.y - 8,
   };

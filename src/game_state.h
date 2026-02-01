@@ -17,15 +17,15 @@ typedef struct {
   Menu* PauseMenu;
   Menu* EndMenu;
   GameLevelState* LevelState;
-  Vec2i terminal_size;
-  Vec2i bounds_min;
-  Vec2i bounds_max;
+  IVec2 terminal_size;
+  IVec2 bounds_min;
+  IVec2 bounds_max;
   bool is_running;
   struct timespec frame_start;
   long target_frame_ms;
 } GameState;
 
-GameState* InitGameState(Vec2i terminal_siz);
+GameState* InitGameState(IVec2 terminal_siz);
 GameLevelState getLevel(GameState* gs, int level_state);
 
 #endif  // GAME_STATE_H

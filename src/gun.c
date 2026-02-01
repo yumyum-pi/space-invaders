@@ -1,6 +1,5 @@
 #include "./gun.h"
 #include <assert.h>
-#include "utils/math.h"
 
 static const Gun GUN_DEFS[GUN_COUNT] = {
     [GUN_LASER] =
@@ -50,7 +49,7 @@ Gun new_gun_default_enemy(void) {
 }
 
 void SetGun(Gun* g, GunType type) {
-  type = clamp(type, 0, GUN_COUNT);
+  type = IClamp(type, 0, GUN_COUNT);
   Gun def = GUN_DEFS[type];
 
   g->fire_rate = def.fire_rate;
@@ -62,7 +61,7 @@ void SetGun(Gun* g, GunType type) {
 }
 
 Gun GetGun(GunType type) {
-  type = clamp(type, 0, GUN_COUNT);
+  type = IClamp(type, 0, GUN_COUNT);
   Gun def = GUN_DEFS[type];
   return (Gun){
       .fire_rate = def.fire_rate,

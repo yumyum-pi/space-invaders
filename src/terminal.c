@@ -4,18 +4,17 @@
 #include <stdlib.h>
 #include <termios.h>
 #include <unistd.h>
-#include "./utils/math.h"
 
-Vec2i t_get_terminal_size() {
+IVec2 t_get_terminal_size() {
   struct winsize size;
 
-  Vec2i win_size_vec2 = {
+  IVec2 win_size_vec2 = {
       .x = 0,
       .y = 0,
   };
 
   if (ioctl(STDIN_FILENO, TIOCGWINSZ, &size) >= 0) {
-    win_size_vec2 = (Vec2i){
+    win_size_vec2 = (IVec2){
         .x = size.ws_col,
         .y = size.ws_row,
     };

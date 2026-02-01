@@ -6,10 +6,9 @@
 #include "gun.h"
 #include "level.h"
 #include "player.h"
-#include "utils/math.h"
 
-Vec2i create_player_start_pos(Vec2i terminal_size) {
-  return (Vec2i){
+IVec2 create_player_start_pos(IVec2 terminal_size) {
+  return (IVec2){
       .x = terminal_size.x / 2,  // middle of the screen
       .y = terminal_size.y - 8,
   };
@@ -19,7 +18,7 @@ Vec2i create_player_start_pos(Vec2i terminal_size) {
 #define ENEMY_POOL_SIZE 10
 
 // TODO: take a struct that defines the no. of emenies
-GameLevelState* NewGameLevel(Vec2i terminal_size, const char* title) {
+GameLevelState* NewGameLevel(IVec2 terminal_size, const char* title) {
   GameLevelState* level_state = malloc(sizeof(GameLevelState));
   if (level_state == NULL) {
     return NULL;
@@ -28,7 +27,7 @@ GameLevelState* NewGameLevel(Vec2i terminal_size, const char* title) {
   Player p = {
       .health = 1,
       .position = create_player_start_pos(terminal_size),
-      .velocity = zero_vec(),
+      .velocity = IVec2Zero(),
       .gun = GetGun(GUN_LASER),
   };
 
@@ -37,7 +36,7 @@ GameLevelState* NewGameLevel(Vec2i terminal_size, const char* title) {
   Pool* enemy_pool = new_object_pool(sizeof(Enemy), ENEMY_POOL_SIZE);
   assert(enemy_pool != NULL);
 
-  // Enemy e = new_enemy((Vec2i){terminal_size.x / 2, 4}, 10);
+  // Enemy e = new_enemy((IVec2){terminal_size.x / 2, 4}, 10);
   Level* level = Level1();
   assert(level != NULL);
 

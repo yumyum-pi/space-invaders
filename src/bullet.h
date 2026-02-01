@@ -5,7 +5,7 @@
 #include "utils/math.h"
 
 typedef struct {
-  Vec2i position;
+  IVec2 position;
   int fired_by;
   int speed;
   bool is_active;

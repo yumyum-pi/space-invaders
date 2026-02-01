@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include "../lib/object_pool/object_pool.h"
 #include "./terminal.h"
-#include "./utils/math.h"
 #include "assert.h"
 #include "bullet.h"
 #include "enemy.h"
@@ -25,7 +24,7 @@ const char enemy[EnemyBufferSize] = "\\\\-v-//";
 // TODO: not sure if i need to call endable raw mode from there
 renderer renderer_init() {
   t_enableRawMode();
-  Vec2i terminal_size = t_get_terminal_size();
+  IVec2 terminal_size = t_get_terminal_size();
 
   assert(terminal_size.x != 0);
   assert(terminal_size.y != 0);
@@ -56,7 +55,7 @@ void renderer_clear(renderer* r, char bg) {
   }
   r->buffer[r->buffer_size] = '\0';
 }
-int position_to_index(renderer* r, Vec2i v) {
+int position_to_index(renderer* r, IVec2 v) {
   assert(v.x >= 0);
   assert(v.x < r->terminal_size.x);
   assert(v.y >= 0);
@@ -69,7 +68,7 @@ int position_to_index(renderer* r, Vec2i v) {
   return index;
 }
 //
-void render_player(renderer* r, Vec2i p) {
+void render_player(renderer* r, IVec2 p) {
   int offset = position_to_index(r, p);
   assert(offset + PlayerBufferSizeHalf < r->buffer_size);
   assert(offset - PlayerBufferSizeHalf > 0);
@@ -80,7 +79,7 @@ void render_player(renderer* r, Vec2i p) {
   }
 }
 
-void render_enemy(renderer* r, Vec2i p) {
+void render_enemy(renderer* r, IVec2 p) {
   int offset = position_to_index(r, p);
   assert(offset + EnemyBufferSizeHalf < r->buffer_size);
   assert(offset - EnemyBufferSizeHalf > 0);
@@ -118,10 +117,10 @@ int calc_offset_bottom_right(renderer* r, size_t l) {
   return (r->buffer_size - l);
 }
 
-void render_ui_elm(renderer* r, Vec2i ancher, Vec2i offset, const char* buffer,
+void render_ui_elm(renderer* r, IVec2 ancher, IVec2 offset, const char* buffer,
                    int buffer_size) {
 
-  Vec2i o = zero_vec();
+  IVec2 o = IVec2Zero();
   switch (ancher.y) {
     case 0:
       // make the char middle algin
@@ -169,7 +168,7 @@ void render_input(renderer* r, GameInput i) {
                    "| input  x:%d  y:%d  fire:%d is_input:%d  |", i.ax, i.ay,
                    i.fire, i.is_input);
   assert(l != 0);
-  render_ui_elm(r, (Vec2i){.x = 1, .y = -1}, (Vec2i){.x = 1, .y = 1}, buffer,
+  render_ui_elm(r, (IVec2){.x = 1, .y = -1}, (IVec2){.x = 1, .y = 1}, buffer,
                 l);
 };
 
@@ -179,7 +178,7 @@ void render_player_pos(renderer* r, Player* p) {
                    p->velocity.x, p->velocity.y);
   assert(l != 0);
 
-  render_ui_elm(r, (Vec2i){.x = -1, .y = -1}, (Vec2i){.x = 1, .y = 1}, buffer,
+  render_ui_elm(r, (IVec2){.x = -1, .y = -1}, (IVec2){.x = 1, .y = 1}, buffer,
                 l);
 }
 void render_window_size(renderer* r) {
@@ -188,7 +187,7 @@ void render_window_size(renderer* r) {
                    (unsigned long)r->terminal_size.y);
   assert(l != 0);
 
-  render_ui_elm(r, (Vec2i){.x = 1, .y = 1}, (Vec2i){.x = 0, .y = 0}, buffer, l);
+  render_ui_elm(r, (IVec2){.x = 1, .y = 1}, (IVec2){.x = 0, .y = 0}, buffer, l);
 }
 
 void render_gun(renderer* r, Gun* g) {
@@ -201,7 +200,7 @@ void render_gun(renderer* r, Gun* g) {
     l = snprintf(buffer, BUFFER_SIZE, "| Magzine:%d |", g->remaining_rounds);
   }
   assert(l != 0);
-  render_ui_elm(r, (Vec2i){.x = -1, .y = -1}, (Vec2i){.x = 1, .y = 2}, buffer,
+  render_ui_elm(r, (IVec2){.x = -1, .y = -1}, (IVec2){.x = 1, .y = 2}, buffer,
                 l);
 };
 void render_border(renderer* r) {
@@ -268,7 +267,7 @@ void render_menu_input(renderer* r, MenuInput* mi) {
                    "| input  x:%d  y:%d  enter:%d is_input:%d  |", i.ax, i.ay,
                    i.enter, i.is_input);
   assert(l != 0);
-  render_ui_elm(r, (Vec2i){.x = 1, .y = -1}, (Vec2i){.x = 1, .y = 1}, buffer,
+  render_ui_elm(r, (IVec2){.x = 1, .y = -1}, (IVec2){.x = 1, .y = 1}, buffer,
                 l);
 }
 void render_menu(renderer* r, Menu* menu) {
@@ -282,7 +281,7 @@ void render_menu(renderer* r, Menu* menu) {
 
       l = snprintf(buffer, BUFFER_SIZE, "  %s  ", (char*)menu->names[i]);
     }
-    render_ui_elm(r, (Vec2i){.x = 0, .y = 0}, (Vec2i){.x = 0, .y = i}, buffer,
+    render_ui_elm(r, (IVec2){.x = 0, .y = 0}, (IVec2){.x = 0, .y = i}, buffer,
                   l);
   }
 }

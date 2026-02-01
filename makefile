@@ -4,7 +4,7 @@ DEBUG   = -g -O0
 RELEASE = -O2 -DNDEBUG
 BUILD_DIR = ./build
 PROGRAM_NAME = app
-SRC = ./src/*.c ./src/**/*.c ./lib/object_pool/object_pool.c
+SRC = ./src/*.c  ./src/utils/math/*.c ./lib/object_pool/object_pool.c
 
 OBJECT_POOL_SRC = ./lib/object_pool/object_pool_test.c ./lib/object_pool/object_pool.c
 GUN_SRC = ./test/player_gun_test.c ./src/utils/math.c

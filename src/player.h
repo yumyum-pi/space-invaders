@@ -6,8 +6,8 @@
 
 typedef struct {
   int health;
-  Vec2i position;
-  Vec2i velocity;
+  IVec2 position;
+  IVec2 velocity;
   Gun gun;
 } Player;
 

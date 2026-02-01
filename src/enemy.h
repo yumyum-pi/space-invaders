@@ -15,12 +15,12 @@ typedef enum {
 
 typedef struct {
   EnemyType type;
-  Vec2i position;
-  Vec2i ancher_position;
+  IVec2 position;
+  IVec2 ancher_position;
   bool is_active;
   float speed;
   Gun gun;
 } Enemy;
 
-void SetEnemy(Enemy* e, EnemyType type, Vec2i ancher_position);
+void SetEnemy(Enemy* e, EnemyType type, IVec2 ancher_position);
 #endif  // !ENEMY_H
