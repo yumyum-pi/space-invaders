@@ -25,6 +25,7 @@ const IVec2 PLAYER_BULLET_DIRECTION = {
 static IRect WorldRect;
 static IRect PlayerBoundingIRect;
 static IRect EnemyBoundingIRect;
+#define WORLD_PADDING_X 8
 
 void game_update_init(IVec2 terminal_size) {
   IVec2 t = terminal_size;
@@ -36,22 +37,22 @@ void game_update_init(IVec2 terminal_size) {
   WorldRect.max = t;
 
   PlayerBoundingIRect.min = (IVec2){
-      .x = 16,
+      .x = WORLD_PADDING_X,
       .y = terminal_size.y - 32,
   };
 
   PlayerBoundingIRect.max = (IVec2){
-      .x = terminal_size.x - 16,
+      .x = terminal_size.x - WORLD_PADDING_X,
       .y = terminal_size.y - 8,
   };
 
   EnemyBoundingIRect.min = (IVec2){
-      .x = 16,
+      .x = WORLD_PADDING_X,
       .y = 0,
   };
 
   EnemyBoundingIRect.max = (IVec2){
-      .x = terminal_size.x - 16,
+      .x = terminal_size.x - WORLD_PADDING_X,
       .y = terminal_size.y - 1,
   };
 }
@@ -76,8 +77,8 @@ void fire_bullet(GameLevelState* level, IVec2 direction, IVec2 pos) {
 void update_player_velocity(const GameInput* in, IVec2* v) {
   {
     const IVec2 accleration = {
-        .x = 1,
-        .y = 1,
+        .x = 3,
+        .y = 3,
     };
     if (in->ay == 0) {
       v->y = IMoveTowards(v->y, 0, 1);

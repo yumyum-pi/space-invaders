@@ -8,10 +8,11 @@
 #include "./renderer.h"
 #include "enemy.h"
 #include "menu.h"
+#include "utils/math/irect.h"
 
 int main() {
   renderer r = renderer_init();
-  GameState* game_state = InitGameState(r.terminal_size);
+  GameState* game_state = InitGameState(IRectGetSize(r.gameRect));
   game_update_init(game_state->terminal_size);
 
   MenuInput menu_input;

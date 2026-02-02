@@ -4,10 +4,13 @@
 #include "game_level_state.h"
 #include "input.h"
 #include "menu.h"
+#include "utils/math/irect.h"
 
 typedef struct {
   IVec2 terminal_size;
+  int offset_x;
   int stride;
+  IRect gameRect;
   int buffer_size;
   char* buffer;
 } renderer;

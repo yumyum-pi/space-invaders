@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../lib/object_pool/object_pool.h"
 #include "./terminal.h"
 #include "assert.h"
@@ -25,6 +26,11 @@ renderer renderer_init() {
 
   assert(terminal_size.x != 0);
   assert(terminal_size.y != 0);
+  assert(terminal_size.y * 2 <= terminal_size.x);
+
+  IVec2 gameSize = {terminal_size.y * 2, terminal_size.y};
+
+  int offset_x = (terminal_size.x - gameSize.x) / 2;
 
   // add one char extra per line for new line
   // int stride = width + 1;
@@ -37,6 +43,9 @@ renderer renderer_init() {
 
   renderer r = {
       .terminal_size = terminal_size,
+      .gameRect = IRectNew((IVec2){offset_x, 0},
+                           (IVec2){offset_x + gameSize.x, gameSize.y}),
+      .offset_x = offset_x,
       .stride = stride,
       .buffer_size = buffer_size,
       .buffer = buffer,
@@ -45,10 +54,14 @@ renderer renderer_init() {
 }
 
 void renderer_clear(renderer* r, char bg) {
+  char wall = '.';
+  memset(r->buffer, bg, r->buffer_size);
+  int offset = 0;
   for (int y = 0; y < r->terminal_size.y; y++) {
-    for (int x = 0; x < r->terminal_size.x; x++) {
-      r->buffer[y * r->stride + x] = bg;
-    }
+    offset = y * r->stride;
+    memset(&(r->buffer[offset]), wall, r->offset_x);
+    memset(&(r->buffer[offset + r->offset_x + (r->terminal_size.y * 2)]), wall,
+           r->offset_x);
   }
   r->buffer[r->buffer_size] = '\0';
 }
@@ -65,13 +78,25 @@ int position_to_index(renderer* r, IVec2 v) {
   return index;
 }
 
+int worldPosToIndex(renderer* r, IVec2 pos) {
+
+  pos.x += r->offset_x;
+  assert(IRectColideIVec2(r->gameRect, pos));
+
+  int index = pos.y * (r->terminal_size.x);
+  index += pos.x;
+  assert(index < r->buffer_size);
+
+  return index;
+}
+
 void renderSprite(renderer* r, Sprite* sprite, IVec2 position) {
   // get min max from a point and size
   IRect rec = IRectFromCenter(position, (IVec2){sprite->width, sprite->height});
 
   // bounds check for min and max points
-  int min_offset = position_to_index(r, rec.min);
-  position_to_index(r, rec.max);
+  int min_offset = worldPosToIndex(r, rec.min);
+  worldPosToIndex(r, rec.max);
 
   size_t offset = min_offset;
   char c = '0';
@@ -208,7 +233,6 @@ void render_gun(renderer* r, Gun* g) {
                 l);
 };
 void render_border(renderer* r) {
-
   char border_char = '+';
   // render borders
   int w = 0;
@@ -223,7 +247,7 @@ void render_border(renderer* r) {
 }
 
 void render_ui(renderer* r, GameLevelState* gs) {
-  render_border(r);
+  // render_border(r);
 
   // enter title on top left
   render_char_at_offset(r, gs->title, 2);
@@ -243,7 +267,7 @@ bool render_bullet(void* payload, void* args) {
   renderer* r = (renderer*)args;
   bullet* b = (bullet*)payload;
   // get position
-  int index = position_to_index(r, b->position);
+  int index = worldPosToIndex(r, b->position);
   r->buffer[index] = '|';
   return true;
 }
@@ -294,7 +318,7 @@ void render_menu(renderer* r, Menu* menu) {
 void render_main_menu(renderer* r, Menu* menu) {
   renderer_clear(r, ' ');
   // render_menu_input(r, mi);
-  render_border(r);
+  // render_border(r);
   render_menu(r, menu);
   t_print_frame(r->buffer, r->buffer_size);
 }
