@@ -6,6 +6,7 @@
 #include "./game_update.h"
 #include "./input.h"
 #include "./renderer.h"
+#include "enemy.h"
 #include "menu.h"
 
 int main() {
@@ -15,6 +16,7 @@ int main() {
 
   MenuInput menu_input;
   GameLevelState* level = NULL;
+  EnemyInit();
   game_state->MainMenu->functions[0]();
   while (game_state->is_running) {
     frame_begin(game_state);

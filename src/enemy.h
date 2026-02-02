@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "./utils/math.h"
 #include "gun.h"
+#include "sprite.h"
 
 typedef enum {
   ENEMY_LASER,
@@ -16,6 +17,7 @@ typedef enum {
 typedef struct {
   EnemyType type;
   IVec2 position;
+  IVec2 rectSize;
   IVec2 ancher_position;
   bool is_active;
   float speed;
@@ -23,4 +25,6 @@ typedef struct {
 } Enemy;
 
 void SetEnemy(Enemy* e, EnemyType type, IVec2 ancher_position);
+void EnemyInit();
+Sprite EnemyGetSprite(EnemyType type);
 #endif  // !ENEMY_H

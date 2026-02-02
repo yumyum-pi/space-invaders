@@ -17,9 +17,6 @@
 
 #define BUFFER_SIZE 128
 char buffer[BUFFER_SIZE];
-#define EnemyBufferSize 7
-const int EnemyBufferSizeHalf = EnemyBufferSize / 2;
-const char enemy[EnemyBufferSize] = "\\\\-v-//";
 
 // TODO: not sure if i need to call endable raw mode from there
 renderer renderer_init() {
@@ -98,16 +95,6 @@ void render_player(renderer* r, Player* p) {
   renderSprite(r, p->sprite, p->position);
 }
 
-void render_enemy(renderer* r, IVec2 p) {
-  int offset = position_to_index(r, p);
-  assert(offset + EnemyBufferSizeHalf < r->buffer_size);
-  assert(offset - EnemyBufferSizeHalf > 0);
-  offset -= EnemyBufferSizeHalf;
-  for (int i = 0; i < EnemyBufferSize; i++) {
-    // Simple bounds check to prevent crashing if player is off-screen
-    r->buffer[offset + i] = enemy[i];
-  }
-}
 //
 
 // TODO: move to a different location
@@ -266,7 +253,8 @@ bool render_bullet(void* payload, void* args) {
 bool render_enemy_pool(void* payload, void* args) {
   renderer* r = (renderer*)args;
   Enemy* e = (Enemy*)payload;
-  render_enemy(r, e->position);
+  Sprite s = EnemyGetSprite(e->type);
+  renderSprite(r, &s, e->position);
   return true;
 }
 
