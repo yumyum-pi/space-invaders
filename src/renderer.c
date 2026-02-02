@@ -1,5 +1,6 @@
 #include "./renderer.h"
 #include <stdarg.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "../lib/object_pool/object_pool.h"
@@ -11,6 +12,7 @@
 #include "input.h"
 #include "menu.h"
 #include "player.h"
+#include "utils/math/irect.h"
 #include "utils/math/ivec2.h"
 
 #define BUFFER_SIZE 128
@@ -66,22 +68,34 @@ int position_to_index(renderer* r, IVec2 v) {
   return index;
 }
 
-void render(renderer* r, Render ren, IVec2 position) {
-  int offset = position_to_index(r, position);
-  int half = ren.buffer_size / 2;
-  assert(offset + (half) < r->buffer_size);
-  assert(offset - (half) > 0);
+void renderSprite(renderer* r, Sprite* sprite, IVec2 position) {
+  // get min max from a point and size
+  IRect rec = IRectFromCenter(position, (IVec2){sprite->width, sprite->height});
 
-  offset -= half;
-  for (int i = 0; i < ren.buffer_size; i++) {
-    // Simple bounds check to prevent crashing if player is off-screen
-    r->buffer[offset + i] = ren.buffer[i];
+  // bounds check for min and max points
+  int min_offset = position_to_index(r, rec.min);
+  position_to_index(r, rec.max);
+
+  size_t offset = min_offset;
+  char c = '0';
+  //loop through
+  for (size_t i = 0; i < sprite->length; i++) {
+    c = sprite->buffer[i];
+    if (c == '\n') {
+      offset += (size_t)(r->terminal_size.x) - sprite->width;
+      continue;
+    }
+    if (c == '\0') {
+      break;
+    }
+    r->buffer[offset] = c;
+    offset++;
   }
 }
 
 //
 void render_player(renderer* r, Player* p) {
-  render(r, p->render, p->position);
+  renderSprite(r, p->sprite, p->position);
 }
 
 void render_enemy(renderer* r, IVec2 p) {

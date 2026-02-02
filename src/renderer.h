@@ -15,5 +15,4 @@ typedef struct {
 renderer renderer_init();
 void render_level(renderer* r, GameLevelState* ge);
 void render_main_menu(renderer* r, Menu* menu);
-// void renderer_shutdown(renderer *r);
 #endif  // !renderer_H
