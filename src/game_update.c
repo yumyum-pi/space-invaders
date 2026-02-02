@@ -97,8 +97,8 @@ void update_player_velocity(const GameInput* in, IVec2* v) {
 
   {
     const IVec2 max_velocity = {
-        .x = 2,
-        .y = 2,
+        .x = 3,
+        .y = 3,
     };
     // clamp the velocity
     v->x = IClamp(v->x, -max_velocity.x, max_velocity.x);

@@ -4,27 +4,33 @@
 static const Gun GUN_DEFS[GUN_COUNT] = {
     [GUN_LASER] =
         {
-            .fire_rate = 10,
-            .magazine_size = 20,
-            .reload_rate = 60,
+            .fire_rate = 20,
+            .magazine_size = 10,
+            .reload_rate = 24,
         },
     [GUN_PLASMA] =
         {
             .fire_rate = 25,
             .magazine_size = 5,
-            .reload_rate = 90,
+            .reload_rate = 24 * 10,
         },
     [GUN_GATLING] =
         {
             .fire_rate = 3,
-            .magazine_size = 100,
-            .reload_rate = 120,
+            .magazine_size = 20,
+            .reload_rate = 24 * 5,
         },
     [GUN_BURST] =
         {
             .fire_rate = 2,
             .magazine_size = 6,
-            .reload_rate = 45,
+            .reload_rate = 24 * 3,
+        },
+    [GUN_LASER_PLAYER] =
+        {
+            .fire_rate = 10,
+            .magazine_size = 20,
+            .reload_rate = 60,
         },
 };
 

@@ -8,6 +8,7 @@ typedef enum {
   GUN_PLASMA,
   GUN_GATLING,
   GUN_BURST,
+  GUN_LASER_PLAYER,
   GUN_COUNT
 } GunType;
 

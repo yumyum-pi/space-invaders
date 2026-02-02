@@ -95,8 +95,6 @@ void render_player(renderer* r, Player* p) {
   renderSprite(r, p->sprite, p->position);
 }
 
-//
-
 // TODO: move to a different location
 int c_str_len(const char* c) {
   int len = 0;
