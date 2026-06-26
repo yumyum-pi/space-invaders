@@ -5,17 +5,21 @@
 #include "menu.h"
 #include "utils/math.h"
 typedef enum {
-  MAIN_MENU,
+  MENU,
   GAME_PAUSE,
   GAME_PLAY,
   GAME_END,
+  TUTORIAL_MENU,
+  TUTORIAL_PLAY,
+  TUTORIAL_PAUSE,
 } GameMode;
 
 typedef struct {
   GameMode mode;
   Menu* MainMenu;
-  Menu* PauseMenu;
-  Menu* EndMenu;
+  Menu* GamePauseMenu;
+  Menu* GameEndMenu;
+  Menu* TutorialMenu;
   GameLevelState* LevelState;
   IVec2 terminal_size;
   IVec2 bounds_min;

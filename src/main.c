@@ -18,11 +18,11 @@ int main() {
   MenuInput menu_input;
   GameLevelState* level = NULL;
   EnemyInit();
-  game_state->MainMenu->functions[0]();
+  // game_state->MainMenu->functions[0]();
   while (game_state->is_running) {
     frame_begin(game_state);
     switch (game_state->mode) {
-      case MAIN_MENU:
+      case MENU:
         menu_input = menu_input_poll();
         MenuUpdateInput(game_state->MainMenu, &menu_input);
         render_main_menu(&r, game_state->MainMenu);
@@ -30,9 +30,9 @@ int main() {
       case GAME_PAUSE:
         // TODO: should show score
         menu_input = menu_input_poll();
-        MenuUpdateInput(game_state->PauseMenu, &menu_input);
+        MenuUpdateInput(game_state->GamePauseMenu, &menu_input);
         // render the menu
-        render_main_menu(&r, game_state->PauseMenu);
+        render_main_menu(&r, game_state->GamePauseMenu);
         break;
       case GAME_PLAY:
         level = game_state->LevelState;
@@ -45,8 +45,13 @@ int main() {
       case GAME_END:
         // TODO: should show score
         menu_input = menu_input_poll();
-        MenuUpdateInput(game_state->EndMenu, &menu_input);
-        render_main_menu(&r, game_state->EndMenu);
+        MenuUpdateInput(game_state->GameEndMenu, &menu_input);
+        render_main_menu(&r, game_state->GameEndMenu);
+        break;
+      case TUTORIAL_MENU:
+        menu_input = menu_input_poll();
+        MenuUpdateInput(game_state->TutorialMenu, &menu_input);
+        render_main_menu(&r, game_state->TutorialMenu);
         break;
       default:
         // this should never happen break the game

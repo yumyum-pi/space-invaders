@@ -3,7 +3,7 @@
 #include "menu.h"
 
 static GameState gs = {
-    .mode = MAIN_MENU,
+    .mode = MENU,
     .is_running = true,
     .target_frame_ms = FRAME_MS,
 };
@@ -29,35 +29,42 @@ void RemoveGameLevel(GameLevelState* level_state) {
   free(level_state);
 }
 
-void resetMenus() {
-  gs.MainMenu->hover = 0;
-  gs.PauseMenu->hover = 0;
-  // gs.QuitGame->hover = 0;
-}
 void NewGame() {
   gs.LevelState = GameLevelNew(gs.terminal_size, "Space Invaders");
   gs.mode = GAME_PLAY;
-  resetMenus();
 }
 void QuitGame() {
   gs.is_running = false;
-  resetMenus();
 }
 
 void GameResume() {
   gs.mode = GAME_PLAY;
-  resetMenus();
 }
 void GameMainMenu() {
   RemoveGameLevel(gs.LevelState);
-  gs.mode = MAIN_MENU;
-  resetMenus();
+  gs.MainMenu->hover = 0;
+  gs.mode = MENU;
 }
 
 void Restart() {
   RemoveGameLevel(gs.LevelState);
   NewGame();
 }
+
+void TutorialMenu() {
+  gs.mode = MENU;
+}
+
+typedef void (*TutorialFunc)(void);
+void TutorialMove(void) { /* ... */ }
+void Tutorial_1() {
+  gs.mode = GAME_PLAY;
+}
+
+// void* GetTutorial(int i) {
+//
+//   return &Tutorial_1;
+// }
 
 GameState* InitGameState(IVec2 terminal_size) {
   IVec2 bounds_min = {
@@ -71,25 +78,32 @@ GameState* InitGameState(IVec2 terminal_size) {
   };
 
   Menu* main_menu = NewMenu(3);
-
   MenuSetFunction(main_menu, "New Game", &NewGame);
+  MenuSetFunction(main_menu, "Tutorial", &NewGame);
   MenuSetFunction(main_menu, "Quit", &QuitGame);
 
-  Menu* pause_menu = NewMenu(3);
-  MenuSetFunction(pause_menu, "Resume", &GameResume);
-  MenuSetFunction(pause_menu, "Main Menu", &GameMainMenu);
-  MenuSetFunction(pause_menu, "Quit", &QuitGame);
+  Menu* game_pause_menu = NewMenu(3);
+  MenuSetFunction(game_pause_menu, "Resume", &GameResume);
+  MenuSetFunction(game_pause_menu, "Main Menu", &GameMainMenu);
+  MenuSetFunction(game_pause_menu, "Quit", &QuitGame);
 
-  Menu* end_menu = NewMenu(3);
-  MenuSetFunction(end_menu, "Restart", &Restart);
-  MenuSetFunction(end_menu, "Main Menu", &GameMainMenu);
-  MenuSetFunction(end_menu, "Quit", &QuitGame);
+  Menu* game_end_menu = NewMenu(3);
+  MenuSetFunction(game_end_menu, "Restart", &Restart);
+  MenuSetFunction(game_end_menu, "Main Menu", &GameMainMenu);
+  MenuSetFunction(game_end_menu, "Quit", &QuitGame);
+
+  Menu* turorial_menu = NewMenu(3);
+  MenuSetFunction(game_end_menu, "Tutorial 1", &Restart);
+  // Menu* turorial_menu = NewMenu(3);
+  // Menu* end_menu = NewMenu(3);
+
   // create game menu
   gs = (GameState){
-      .mode = MAIN_MENU,
+      .mode = MENU,
       .MainMenu = main_menu,
-      .PauseMenu = pause_menu,
-      .EndMenu = end_menu,
+      .GamePauseMenu = game_pause_menu,
+      .GameEndMenu = game_end_menu,
+      .TutorialMenu = turorial_menu,
       .is_running = true,
       .terminal_size = terminal_size,
       .target_frame_ms = FRAME_MS,
