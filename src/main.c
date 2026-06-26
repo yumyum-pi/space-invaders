@@ -28,11 +28,9 @@ int main() {
         render_main_menu(&r, game_state->MainMenu);
         break;
       case GAME_PAUSE:
-        // TODO: should show score
         menu_input = menu_input_poll();
         MenuUpdateInput(game_state->GamePauseMenu, &menu_input);
-        // render the menu
-        render_main_menu(&r, game_state->GamePauseMenu);
+        render_menu_with_score(&r, game_state->GamePauseMenu, game_state->LevelState->score);
         break;
       case GAME_PLAY:
         level = game_state->LevelState;
@@ -43,10 +41,17 @@ int main() {
         render_level(&r, level);
         break;
       case GAME_END:
-        // TODO: should show score
         menu_input = menu_input_poll();
         MenuUpdateInput(game_state->GameEndMenu, &menu_input);
-        render_main_menu(&r, game_state->GameEndMenu);
+        render_menu_with_score(&r, game_state->GameEndMenu, game_state->LevelState->score);
+        break;
+      case TUTORIAL_PLAY:
+        level = game_state->LevelState;
+        assert(level != NULL);
+        level->input = game_input_poll();
+        level->frame_count += 1;
+        tutorial_update(game_state, level);
+        render_level(&r, level);
         break;
       case TUTORIAL_MENU:
         menu_input = menu_input_poll();

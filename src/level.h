@@ -30,6 +30,7 @@ typedef struct {
 } Level;
 
 Level* Level1();
+Level* LevelTutorial();
 SpawnEvent* LevelGetSpawnEvent(Level* level, int frame_count);
 void LevelRemove(Level* l);
 

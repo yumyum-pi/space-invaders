@@ -1,5 +1,6 @@
 #include "./game_state.h"
 #include "game_level_state.h"
+#include "level.h"
 #include "menu.h"
 
 static GameState gs = {
@@ -30,8 +31,14 @@ void RemoveGameLevel(GameLevelState* level_state) {
 }
 
 void NewGame() {
-  gs.LevelState = GameLevelNew(gs.terminal_size, "Space Invaders");
+  gs.LevelState = GameLevelNew(gs.terminal_size, "Space Invaders", Level1());
   gs.mode = GAME_PLAY;
+}
+
+void StartTutorial() {
+  gs.LevelState = GameLevelNew(gs.terminal_size, "Tutorial", LevelTutorial());
+  gs.LevelState->tutorial = (Tutorial){.active = true, .step = 0, .step_frames = 0};
+  gs.mode = TUTORIAL_PLAY;
 }
 void QuitGame() {
   gs.is_running = false;
@@ -48,7 +55,8 @@ void GameMainMenu() {
 
 void Restart() {
   RemoveGameLevel(gs.LevelState);
-  NewGame();
+  gs.LevelState = GameLevelNew(gs.terminal_size, "Space Invaders", Level1());
+  gs.mode = GAME_PLAY;
 }
 
 void TutorialMenu() {
@@ -79,7 +87,7 @@ GameState* InitGameState(IVec2 terminal_size) {
 
   Menu* main_menu = NewMenu(3);
   MenuSetFunction(main_menu, "New Game", &NewGame);
-  MenuSetFunction(main_menu, "Tutorial", &NewGame);
+  MenuSetFunction(main_menu, "Tutorial", &StartTutorial);
   MenuSetFunction(main_menu, "Quit", &QuitGame);
 
   Menu* game_pause_menu = NewMenu(3);

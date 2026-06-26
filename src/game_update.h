@@ -7,6 +7,7 @@
 #include "utils/math.h"
 
 void game_update(GameState* gs, GameLevelState* level);
+void tutorial_update(GameState* gs, GameLevelState* level);
 void game_update_init(IVec2 terminal_size);
 
 void frame_begin(GameState* gs);

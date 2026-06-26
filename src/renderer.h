@@ -18,4 +18,5 @@ typedef struct {
 renderer renderer_init();
 void render_level(renderer* r, GameLevelState* ge);
 void render_main_menu(renderer* r, Menu* menu);
+void render_menu_with_score(renderer* r, Menu* menu, int score);
 #endif  // !renderer_H

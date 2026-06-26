@@ -7,6 +7,8 @@
 
 typedef struct {
   int health;
+  int lives;
+  int respawn_frames;
   IVec2 position;
   IVec2 velocity;
   IVec2 rectSize;

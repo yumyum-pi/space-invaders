@@ -280,16 +280,60 @@ bool render_enemy_pool(void* payload, void* args) {
   return true;
 }
 
+static void render_explosions(renderer* r, GameLevelState* gs) {
+  for (int i = 0; i < MAX_EXPLOSIONS; i++) {
+    Explosion* ex = &gs->explosions[i];
+    if (!ex->is_active) continue;
+    IVec2 pos = {ex->position.x - 2, ex->position.y};
+    render_char_at_offset(r, "*-X-*", worldPosToIndex(r, pos));
+  }
+}
+
+static void render_tutorial_overlay(renderer* r, GameLevelState* gs) {
+  static const char* steps[] = {
+      "Move left/right -- press A or D",
+      "Shoot -- press SPACE",
+      "You're ready!  Returning to menu...",
+  };
+  int step = gs->tutorial.step;
+  if (step > 2) return;
+  const char* msg = steps[step];
+  render_ui_elm(r, (IVec2){0, 0}, (IVec2){0, 0}, msg, c_str_len(msg));
+}
+
+static void render_shields(renderer* r, GameLevelState* gs) {
+  static const char* sprites[] = {"###", "-#-", "..."};
+  for (int i = 0; i < gs->shield_count; i++) {
+    Shield* s = &gs->shields[i];
+    if (!s->is_active || s->hp <= 0) continue;
+    IVec2 pos = {s->position.x - 1, s->position.y};
+    render_char_at_offset(r, sprites[s->hp - 1], worldPosToIndex(r, pos));
+  }
+}
+
+static void render_hud(renderer* r, GameLevelState* gs) {
+  char buf[32];
+  int l;
+  l = snprintf(buf, sizeof(buf), "SCORE: %d", gs->score);
+  render_ui_elm(r, (IVec2){0, 1}, (IVec2){0, 0}, buf, l);
+  l = snprintf(buf, sizeof(buf), "LIVES: %d", gs->player->lives);
+  render_ui_elm(r, (IVec2){-1, 1}, (IVec2){2, 0}, buf, l);
+}
+
 void render_level(renderer* r, GameLevelState* gs) {
   renderer_clear(r, ' ');
   render_player(r, gs->player);
-
+  render_shields(r, gs);
+  render_explosions(r, gs);
   object_pool_itr(gs->enemy_pool, render_enemy_pool, r);
   object_pool_itr(gs->bullet_pool, render_bullet, r);
+  render_hud(r, gs);
   render_ui(r, gs);
+  if (gs->tutorial.active) render_tutorial_overlay(r, gs);
 
   t_print_frame(r->buffer, r->buffer_size);
 }
+
 void render_menu_input(renderer* r, MenuInput* mi) {
   MenuInput i = *mi;
   int l = snprintf(buffer, BUFFER_SIZE,
@@ -320,5 +364,14 @@ void render_main_menu(renderer* r, Menu* menu) {
   // render_menu_input(r, mi);
   // render_border(r);
   render_menu(r, menu);
+  t_print_frame(r->buffer, r->buffer_size);
+}
+
+void render_menu_with_score(renderer* r, Menu* menu, int score) {
+  renderer_clear(r, ' ');
+  render_menu(r, menu);
+  char buf[32];
+  int l = snprintf(buf, sizeof(buf), "SCORE: %d", score);
+  render_ui_elm(r, (IVec2){0, 1}, (IVec2){0, 2}, buf, l);
   t_print_frame(r->buffer, r->buffer_size);
 }

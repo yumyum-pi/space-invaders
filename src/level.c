@@ -92,6 +92,10 @@ Level* Level1() {
   return l;
 };
 
+Level* LevelTutorial() {
+  return NewLevel(1);
+}
+
 void LevelRemove(Level* l) {
   if (l == NULL) {
     return;

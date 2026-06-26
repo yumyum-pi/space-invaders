@@ -18,7 +18,7 @@ IVec2 create_player_start_pos(IVec2 terminal_size) {
 #define ENEMY_POOL_SIZE 10
 
 // TODO: take a struct that defines the no. of emenies
-GameLevelState* GameLevelNew(IVec2 terminal_size, const char* title) {
+GameLevelState* GameLevelNew(IVec2 terminal_size, const char* title, Level* level) {
   GameLevelState* level_state = malloc(sizeof(GameLevelState));
   if (level_state == NULL) {
     return NULL;
@@ -31,8 +31,6 @@ GameLevelState* GameLevelNew(IVec2 terminal_size, const char* title) {
   Pool* enemy_pool = new_object_pool(sizeof(Enemy), ENEMY_POOL_SIZE);
   assert(enemy_pool != NULL);
 
-  // Enemy e = new_enemy((IVec2){terminal_size.x / 2, 4}, 10);
-  Level* level = Level1();
   assert(level != NULL);
 
   level_state->title = title;
@@ -41,6 +39,18 @@ GameLevelState* GameLevelNew(IVec2 terminal_size, const char* title) {
   level_state->bullet_pool = bullet_pool;
   level_state->level = level;
   level_state->frame_count = 0;
+  level_state->score = 0;
+  level_state->formation = (Formation){.dir = 1, .drop = false};
+  level_state->tutorial = (Tutorial){.active = false, .step = 0, .step_frames = 0};
+  for (int i = 0; i < MAX_EXPLOSIONS; i++)
+    level_state->explosions[i].is_active = false;
+
+  int sy = terminal_size.y - 12;
+  level_state->shield_count = 3;
+  level_state->shields[0] = (Shield){.position = {terminal_size.x / 4,     sy}, .hp = SHIELD_MAX_HP, .is_active = true};
+  level_state->shields[1] = (Shield){.position = {terminal_size.x / 2,     sy}, .hp = SHIELD_MAX_HP, .is_active = true};
+  level_state->shields[2] = (Shield){.position = {terminal_size.x * 3 / 4, sy}, .hp = SHIELD_MAX_HP, .is_active = true};
+
   return level_state;
 }
 

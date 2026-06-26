@@ -14,6 +14,8 @@ Player* PlayerNew(IVec2 position, const char* spriteStr, GunType gunType) {
   p->sprite = SpriteNewFromStr(spriteStr);
   p->position = position;
   p->health = 1;
+  p->lives = 3;
+  p->respawn_frames = 0;
   p->rectSize = (IVec2){p->sprite->width, p->sprite->height};
   p->velocity = IVec2Zero();
   p->gun = GetGun(gunType);

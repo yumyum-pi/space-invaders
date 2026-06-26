@@ -1,5 +1,6 @@
 #include "./game_update.h"
 #include <assert.h>
+#include <limits.h>
 #include <stdio.h>
 #include "../lib/object_pool/object_pool.h"
 #include "bullet.h"
@@ -146,61 +147,61 @@ void frame_sleep(GameState* gs) {
   nanosleep(&sleep_time, NULL);
 }
 
-int ping_pong(int min, int max, float speed, int frame_count) {
-  int diff = max - min;
-  int cycle_length = diff * 2;
+#define FORMATION_SPEED_X 1
+#define FORMATION_DROP_Y  2
 
-  float progress = (float)((int)(frame_count * speed) % cycle_length);
+typedef struct {
+  int  min_x;
+  int  max_x;
+  bool found;
+} BoundsCtx;
 
-  float t = progress / diff;
-  if (t > 1.0f)
-    t = 2.0f - t;
-
-  return (int)(min + (t * diff));
-}
-// Ping-pong the progress so it goes 0 -> 1 -> 0
-int ping_pong_ease_in_out(int min, int max, float speed, int frame_count) {
-  int diff = max - min;
-  int cycle_length = diff * 2;
-
-  float progress = (float)((int)(frame_count * speed) % cycle_length);
-
-  float t = progress / diff;
-  if (t > 1.0f)
-    t = 2.0f - t;
-
-  // curve the linear "t" into a smooth S-shape
-  float eased_t = t * t * (3.0f - 2.0f * t);
-
-  return (int)(min + (eased_t * diff));
+bool bounds_itr(void* payload, void* args) {
+  Enemy* e    = (Enemy*)payload;
+  BoundsCtx* ctx = (BoundsCtx*)args;
+  if (e->position.x < ctx->min_x) ctx->min_x = e->position.x;
+  if (e->position.x > ctx->max_x) ctx->max_x = e->position.x;
+  ctx->found = true;
+  return true;
 }
 
-void update_enemy(GameLevelState* level, Enemy* e) {
-  {
-    float speed = e->speed;
-    // TODO: the bound_offset_x should not be hard coded
-    int offset = 32;  // left and right extrems of ping pong positions
-    int x = ping_pong_ease_in_out(-offset, offset, speed, level->frame_count);
-    e->position.x = e->ancher_position.x + x;
-    e->ancher_position.y += 1 / (level->frame_count % 12);
-    e->position.y = e->ancher_position.y;
-  }
+typedef struct {
+  Formation*      f;
+  GameLevelState* level;
+} MoveCtx;
 
-  if (!IRectColideIVec2(EnemyBoundingIRect, e->position)) {
-    e->position =
-        IVec2Clamp(e->position, EnemyBoundingIRect.min, EnemyBoundingIRect.max);
+bool move_enemy_itr(void* payload, void* args) {
+  Enemy* e    = (Enemy*)payload;
+  MoveCtx* ctx = (MoveCtx*)args;
+  e->position.x        += ctx->f->dir * FORMATION_SPEED_X;
+  e->ancher_position.x += ctx->f->dir * FORMATION_SPEED_X;
+  if (ctx->f->drop) {
+    e->position.y        += FORMATION_DROP_Y;
+    e->ancher_position.y += FORMATION_DROP_Y;
   }
-
-  if (!IsInWord(e->position)) {
-    e->is_active = false;
-  }
-
-  Gun* gun = &(e->gun);
-
-  if (gun_fire(gun, level->frame_count, true)) {
-    fire_bullet(level, ENEMY_BULLET_DIRECTION, e->position);
-  }
+  if (gun_fire(&e->gun, ctx->level->frame_count, true))
+    fire_bullet(ctx->level, ENEMY_BULLET_DIRECTION, e->position);
+  if (!IsInWord(e->position)) e->is_active = false;
+  return true;
 }
+
+void update_enemies_formation(GameLevelState* level) {
+  BoundsCtx bounds = {.min_x = INT_MAX, .max_x = INT_MIN, .found = false};
+  object_pool_itr(level->enemy_pool, bounds_itr, &bounds);
+  if (!bounds.found) return;
+
+  Formation* f = &level->formation;
+  int nx_min = bounds.min_x + f->dir * FORMATION_SPEED_X;
+  int nx_max = bounds.max_x + f->dir * FORMATION_SPEED_X;
+  if (nx_min <= EnemyBoundingIRect.min.x || nx_max >= EnemyBoundingIRect.max.x) {
+    f->dir  = -f->dir;
+    f->drop = true;
+  }
+  MoveCtx ctx = {.f = f, .level = level};
+  object_pool_itr(level->enemy_pool, move_enemy_itr, &ctx);
+  f->drop = false;
+}
+
 //
 typedef struct {
   IVec2 terminal_size;
@@ -223,22 +224,39 @@ bool update_bullet_itr_wrapper(void* payload, void* args) {
 
 typedef struct {
   Player* player;
-  Pool* enemy_pool;   // to return object to the pool
-  Pool* bullet_pool;  // to return object to the pool
+  Pool* enemy_pool;
+  Pool* bullet_pool;
+  int* score;
+  Shield* shields;
+  int shield_count;
+  Explosion* explosions;
 } BulletCollisionContext;
 
 typedef struct {
   bullet* b;
   Pool* enemy_pool;
   bool* hit;
+  int* score;
+  Explosion* explosions;
 } bullet_enemy_context;
+
+static void spawn_explosion(Explosion* exps, IVec2 pos) {
+  for (int i = 0; i < MAX_EXPLOSIONS; i++) {
+    if (!exps[i].is_active) {
+      exps[i] = (Explosion){pos, EXPLOSION_FRAMES, true};
+      return;
+    }
+  }
+}
 
 bool bullet_collision_to_enemy_itr(void* payload, void* args) {
   Enemy* e = (Enemy*)payload;
   bullet_enemy_context* context = (bullet_enemy_context*)args;
 
-  if (IVec2Equal(context->b->position, e->position)) {
+  if (IRectColideIVec2(IRectFromCenter(e->position, e->rectSize), context->b->position)) {
     *context->hit = true;
+    (*context->score)++;
+    spawn_explosion(context->explosions, e->position);
     e->is_active = false;
     object_pool_return(context->enemy_pool, e);
     return false;
@@ -251,9 +269,22 @@ bool bullet_obj_pool_enemy_itr_wrapper(void* payload, void* args) {
   bullet* b = (bullet*)payload;
   BulletCollisionContext* context = (BulletCollisionContext*)args;
 
+  // shields block all bullets
+  for (int i = 0; i < context->shield_count; i++) {
+    Shield* s = &context->shields[i];
+    if (!s->is_active) continue;
+    if (IRectColideIVec2(IRectFromCenter(s->position, (IVec2){3, 1}), b->position)) {
+      s->hp--;
+      if (s->hp <= 0) s->is_active = false;
+      object_pool_return(context->bullet_pool, b);
+      return true;
+    }
+  }
+
   // enemy bullet speed = -1;
   // enemy bullet check of player collision
   if (b->speed == -1 &&
+      context->player->respawn_frames == 0 &&
       IRectColideIVec2(
           IRectFromCenter(context->player->position, context->player->rectSize),
           b->position)) {
@@ -266,6 +297,8 @@ bool bullet_obj_pool_enemy_itr_wrapper(void* payload, void* args) {
         .b = b,
         .enemy_pool = context->enemy_pool,
         .hit = &hit,
+        .score = context->score,
+        .explosions = context->explosions,
     };
     object_pool_itr(context->enemy_pool, bullet_collision_to_enemy_itr, &ctx);
     if (hit) {
@@ -275,11 +308,23 @@ bool bullet_obj_pool_enemy_itr_wrapper(void* payload, void* args) {
   return true;
 }
 
+static void update_explosions(GameLevelState* level) {
+  for (int i = 0; i < MAX_EXPLOSIONS; i++) {
+    if (level->explosions[i].is_active)
+      if (--level->explosions[i].frames_remaining <= 0)
+        level->explosions[i].is_active = false;
+  }
+}
+
 void update_collision(GameLevelState* level) {
   BulletCollisionContext collisionContext = {
       .bullet_pool = level->bullet_pool,
       .player = level->player,
       .enemy_pool = level->enemy_pool,
+      .score = &level->score,
+      .shields = level->shields,
+      .shield_count = level->shield_count,
+      .explosions = level->explosions,
   };
   object_pool_itr(level->bullet_pool, bullet_obj_pool_enemy_itr_wrapper,
                   &collisionContext);
@@ -298,17 +343,28 @@ void update_player(GameLevelState* level, const GameInput* in) {
   }
 }
 
-typedef struct {
-  GameLevelState* level;
-  Pool* pool;  // to return object to the pool
-} EnemyUpdateContext;
+void tutorial_update(GameState* gs, GameLevelState* level) {
+  const GameInput* in = &level->input;
+  if (in->quit) {
+    gs->mode = MENU;
+    return;
+  }
 
-bool update_enemy_itr_wrapper(void* payload, void* args) {
-  Enemy* e = (Enemy*)payload;
-  EnemyUpdateContext* context = (EnemyUpdateContext*)args;
-  update_enemy(context->level, e);
-  return true;
-};
+  update_player(level, in);
+
+  BulletUpdateContext bctx = {.terminal_size = gs->terminal_size,
+                               .pool = level->bullet_pool};
+  object_pool_itr(level->bullet_pool, update_bullet_itr_wrapper, &bctx);
+
+  Tutorial* t = &level->tutorial;
+  t->step_frames++;
+  switch (t->step) {
+    case 0: if (in->ax != 0) { t->step = 1; t->step_frames = 0; } break;
+    case 1: if (in->fire)    { t->step = 2; t->step_frames = 0; } break;
+    case 2: if (t->step_frames > FPS * 2) gs->mode = MENU; break;
+    default: gs->mode = MENU; break;
+  }
+}
 
 IVec2 center_offset(IVec2 terminal_size, IVec2 offset) {
   return (IVec2){
@@ -345,26 +401,27 @@ void game_update(GameState* gs, GameLevelState* level_state) {
   }
   update_player(level_state, in);
 
-  EnemyUpdateContext enemyUpdateContext = {
-      .level = level_state,
-      .pool = level_state->bullet_pool,
-  };
-  object_pool_itr(level_state->enemy_pool, update_enemy_itr_wrapper,
-                  &enemyUpdateContext);
+  update_enemies_formation(level_state);
 
   BulletUpdateContext bulletUpdateContext = {
       .terminal_size = gs->terminal_size,
       .pool = level_state->bullet_pool,
   };
-  // update the position of the bullets
   object_pool_itr(level_state->bullet_pool, update_bullet_itr_wrapper,
                   &bulletUpdateContext);
 
-  // check for collision
   update_collision(level_state);
+  update_explosions(level_state);
 
-  if (level_state->player->health <= 0) {
-    // TODO: pass the score here
-    gs->mode = GAME_END;
+  Player* p = level_state->player;
+  if (p->health <= 0) {
+    p->lives--;
+    if (p->lives <= 0) {
+      gs->mode = GAME_END;
+    } else {
+      p->health = 1;
+      p->respawn_frames = FPS * 2;
+    }
   }
+  if (p->respawn_frames > 0) p->respawn_frames--;
 }
